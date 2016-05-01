@@ -61,55 +61,28 @@ class Perceptron:
         if False in np.in1d(y, [-1, 1]):
             raise NameError('y required to contain only 1 and -1')
         self.weights = np.zeros(np.shape(X)[1])
+        pocket_weights = np.zeros(np.shape(X)[1])
         # Update weights until they linearly separate inputs
+        # if self.pocket, keep track of best weights
         iteration = 0
         while not np.array_equal(np.sign(np.dot(X, np.transpose(self.weights))), y):
             if iteration > self.max_iter:
+                if self.pocket:
+                    self.weights = pocket_weights
+                else:
+                    self.weights = np.NaN
                 return self
             classification = np.equal(np.sign(np.dot(X, np.transpose(self.weights))), y)
             misclassified_point = np.where(classification==False)[0][0]
+            updated_weights = self.weights + self.learning_rate * y[misclassified_point] * X[misclassified_point]
+            if self.pocket:
+                if np.sum(classification) > np.sum(np.equal(np.sign(np.dot(X, np.transpose(pocket_weights))), y)):
+                    pocket_weights = updated_weights
             self.weights = self.weights + self.learning_rate * y[misclassified_point] * X[misclassified_point]
             iteration += 1
         self.learned = True
         return self
-        
-# h(x) = sign(transpose(w)*x)
-# input weights and vector
-
-### Algorithm
-# Randomly assign w
-# pick misclassified point (how to efficiently find?)
-# update weight vecotr w = w + yn*Xn
-# repeat until all are classified
-###
-from sklearn.datasets.samples_generator import make_blobs
-blobs = make_blobs(n_samples = 10, n_features = 2, centers = 2, cluster_std = 0.0001)
-X = blobs[0]
-y = blobs[1]
-y[y==0]=-1
-
-a = Perceptron()
-a.fit(X, y)
-
-### 
-
-a = np.random.uniform(-1, 1, 100)
-b = np.random.uniform(-1, 1, 100)
-X = np.column_stack((a,b))
-r1 = np.random.uniform(-1, 1, 2)
-r2 = np.random.uniform(-1, 1, 2)
-decision_vector = [r2[0]-r1[0],r2[1] - r2[0]]   # Vector 1
-point_vectors1, point_vectors2 = r2[0]-X[:,0], r2[1]-X[:,1]   # Vector 1
-point_vectors = np.column_stack((point_vectors1,point_vectors2))
-xp = decision_vector[1]*point_vectors[:,1] - decision_vector[1]*point_vectors[:,0]
-y = np.sign(xp)
-
-
-perc = Perceptron(learning_rate = 1)
-#how_many.append(perc.fit(X, y))
-perc.fit(X, y)
-
-perc.predict(X) - y
+    
 
 
 
