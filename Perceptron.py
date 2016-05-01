@@ -1,6 +1,5 @@
 #Note: The perceptron requires linearly seperable data.
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Perceptron:
     def __init__(self, max_iter = 100, learning_rate=1, pocket = False):
@@ -27,7 +26,9 @@ class Perceptron:
             X (np.ndarray): Training data of shape[n_samples, n_features]
                 
         Returns:
-            self: Returns an instance of self
+            prediction (np.ndarray): shape[n_samples 1)
+                Returns predicted values   
+                
         Raises:
             ValueError if model has not been fit
         """
@@ -47,15 +48,12 @@ class Perceptron:
         Args: 
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1] 
-                (vals must be -1 or 1)
                 
         Returns:
-            prediction (np.ndarray): shape[n_samples 1)
-                Returns predicted values
-        Raises:
-            ValueError if y contains values other than -1 or 1
+            self: Returns an instance of self
         """
         y = np.asarray(y)
+        X = np.asarray(X)
         X = np.insert(X, 0, 1, axis = 1)
         #Check if y contains only 1 or -1 values
         if False in np.in1d(y, [-1, 1]):
