@@ -2,12 +2,14 @@
 import numpy as np
 
 class Perceptron:
-    def __init__(self, max_iter = 100, learning_rate=1, pocket = False):
+    def __init__(self, max_iter = 100, learning_rate=1, pocket = False, initial_weights = False):
         """
         Args: 
             max_iter (int): Maximum number of iterations through PLA before stoping
             learning_rate (float): PLA step size
-            pocket (bool): 
+            pocket (bool): optional incorporation of pocket algorithm, 
+                saves best weights incase model is not fit
+            initial_weights (np.ndarray): optional initial weights for PLA
                 
         Attributes::
             weights (np.ndarray): vector of weights for linear separation
@@ -17,7 +19,7 @@ class Perceptron:
         self.learning_rate = learning_rate
         self.pocket = pocket
         
-        self.weights = np.NaN
+        self.weights = initial_weights
         self.learned = False
         
     def predict(self, X):
@@ -36,10 +38,7 @@ class Perceptron:
             raise NameError('Fit model first')
         # Add column of 1s to X for perceptron threshold
         X = np.asarray(X)
-        if X.ndim==1:
-            X = np.insert(X, 0, 1, axis = 1)
-        else:
-            X = np.insert(X, 0, 1, axis = 1)
+        X = np.column_stack((np.ones(len(a)), X))
         prediction = np.sign(np.dot(X, np.transpose(self.weights)))
         return prediction
         
@@ -54,11 +53,12 @@ class Perceptron:
         """
         y = np.asarray(y)
         X = np.asarray(X)
-        X = np.insert(X, 0, 1, axis = 1)
+        X = np.column_stack((np.ones(len(a)), X))
         #Check if y contains only 1 or -1 values
         if False in np.in1d(y, [-1, 1]):
             raise NameError('y required to contain only 1 and -1')
-        self.weights = np.zeros(np.shape(X)[1])
+        if self.weights.all() == False:
+            self.weights = np.zeros(np.shape(X)[1])
         pocket_weights = np.zeros(np.shape(X)[1])
         # Update weights until they linearly separate inputs
         # if self.pocket, keep track of best weights

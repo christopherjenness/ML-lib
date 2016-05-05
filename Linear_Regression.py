@@ -27,10 +27,7 @@ class LinearRegression:
             raise NameError('Fit model first')
         # Add column of 1s to X for perceptron threshold
         X = np.asarray(X)
-        if X.ndim==1:
-            X = np.insert(X, 0, 1, axis = 1)
-        else:
-            X = np.insert(X, 0, 1, axis = 1)
+        X = np.column_stack((np.ones(len(a)), X))
         prediction = np.dot(X, np.transpose(self.weights))
         return prediction
     
@@ -48,7 +45,7 @@ class LinearRegression:
         """
         y = np.asarray(y)
         X = np.asarray(X)
-        X = np.insert(X, 0, 1, axis = 1)
+        X = np.column_stack((np.ones(len(a)), X))
         #Calculate weights (closed form solution)
         self.weights = np.dot(np.dot(np.linalg.pinv(np.dot(np.transpose(X), X)), np.transpose(X)), y)
         self.learned = True
