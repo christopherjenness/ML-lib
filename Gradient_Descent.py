@@ -1,6 +1,6 @@
 import numpy as np
 
-def GradientDescent(X, y, Gradient, alpha = 0.1, iterations = 1000, initial_weights = False, stochastic = False):
+def GradientDescent(X, y, Gradient, alpha = 0.01, iterations = 1000, initial_weights = False, stochastic = False):
     """
     Args: 
         X (np.ndarray): Training data of shape[n_samples, n_features]
@@ -20,9 +20,14 @@ def GradientDescent(X, y, Gradient, alpha = 0.1, iterations = 1000, initial_weig
     # Update weights via gradient descent
     iteration = 0
     while iteration < iterations:
-        weights = weights - alpha * Gradient(X, y, weights)
+        if stochastic == True:
+            random_index = np.random.randint(len(y))
+            weights = weights - alpha * Gradient(X[random_index], y[random_index], weights)
+        else:
+            weights = weights - alpha * Gradient(X, y, weights)
         iteration +=1
     return weights
+    
         
     
     
