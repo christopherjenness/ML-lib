@@ -17,7 +17,7 @@ class LinearRegression:
             X (np.ndarray): Training data of shape[n_samples, n_features]
                 
         Returns:
-            prediction (np.ndarray): shape[n_samples 1)
+            prediction (np.ndarray): shape[n_samples, 1]
                 Returns predicted values       
                 
         Raises:

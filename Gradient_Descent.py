@@ -11,6 +11,9 @@ def GradientDescent(X, y, Gradient, alpha = 0.01, iterations = 1000, initial_wei
         iterations (int): Number of iterations of gradient descent to perform
         initial_weights (np.ndarray): initial weights for gradient descent
         stochastic (bool): If True, implement Stochastic Gradient Descent
+    Returns:
+        weights (np.ndarray): shape[n_features, 1]
+                Returns array of weights   
     """
     # If no initial weights given, initials weights = 0
     if initial_weights == False:
