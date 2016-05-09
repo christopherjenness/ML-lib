@@ -1,4 +1,5 @@
 import numpy as np
+from Gradient_Descent import GradientDescent
 
 class LinearRegression:
     def __init__(self):
@@ -31,12 +32,14 @@ class LinearRegression:
         prediction = np.dot(X, np.transpose(self.weights))
         return prediction
     
-    def fit(self, X, y):
+    def fit(self, X, y, gradient_descent = False):
         """
         Args: 
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1] 
                 (vals must be -1 or 1)
+            gradient_descent (bool): Optional use of gradient descent to calculate weights
+                if False, uses closed form solution to calculate weights.
                 
         Returns:
             self: Returns an instance of self
@@ -46,7 +49,14 @@ class LinearRegression:
         y = np.asarray(y)
         X = np.asarray(X)
         X = np.column_stack((np.ones(len(a)), X))
-        #Calculate weights (closed form solution)
-        self.weights = np.dot(np.dot(np.linalg.pinv(np.dot(np.transpose(X), X)), np.transpose(X)), y)
+        if gradient_descent:
+            # Use gradient descent to calculate weights
+            def LRgrad(X, y, weights):
+                hypothesis = np.dot(X, weights) - y
+                return np.dot(np.transpose(X), hypothesis)  / np.size(y)
+            self.weights  = GradientDescent(X, y, LRgrad)
+        else:
+            #Calculate weights (closed form solution)
+            self.weights = np.dot(np.dot(np.linalg.pinv(np.dot(np.transpose(X), X)), np.transpose(X)), y)
         self.learned = True
         return self
