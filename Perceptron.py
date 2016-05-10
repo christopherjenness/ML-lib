@@ -2,7 +2,7 @@
 import numpy as np
 
 class Perceptron:
-    def __init__(self, max_iter = 100, learning_rate=1, pocket = False, initial_weights = False):
+    def __init__(self, max_iter = 100, learning_rate=1, pocket = False, initial_weights = np.NaN):
         """
         Args: 
             max_iter (int): Maximum number of iterations through PLA before stoping
@@ -38,7 +38,7 @@ class Perceptron:
             raise NameError('Fit model first')
         # Add column of 1s to X for perceptron threshold
         X = np.asarray(X)
-        X = np.column_stack((np.ones(len(a)), X))
+        X = np.column_stack((np.ones(np.shape(X)[0]), X))
         prediction = np.sign(np.dot(X, np.transpose(self.weights)))
         return prediction
         
@@ -53,11 +53,11 @@ class Perceptron:
         """
         y = np.asarray(y)
         X = np.asarray(X)
-        X = np.column_stack((np.ones(len(a)), X))
+        X = np.column_stack((np.ones(np.shape(X)[0]), X))
         #Check if y contains only 1 or -1 values
         if False in np.in1d(y, [-1, 1]):
             raise NameError('y required to contain only 1 and -1')
-        if self.weights.all() == False:
+        if type(self.weights) == bool:
             self.weights = np.zeros(np.shape(X)[1])
         pocket_weights = np.zeros(np.shape(X)[1])
         # Update weights until they linearly separate inputs
