@@ -50,6 +50,9 @@ class Perceptron:
                 
         Returns:
             self: Returns an instance of self
+            
+        Raises:
+            ValueError if y contains values other than -1 and 1
         """
         y = np.asarray(y)
         X = np.asarray(X)
