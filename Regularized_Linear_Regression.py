@@ -12,6 +12,7 @@ class RegularizedLinearRegression(LinearRegression):
             gradient_descent (bool): Optional use of gradient descent to calculate weights
                 if False, uses closed form solution to calculate weights.
             reg_parameter (float): float to determine strength of regulatrization  penalty
+                if 0, then no linear regression without regularization is performed
                 
         Returns:
             self: Returns an instance of self

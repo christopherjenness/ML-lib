@@ -42,11 +42,13 @@ class LogisticRegression:
         prediction = self.logistic_function(np.dot(X, np.transpose(self.weights)))
         return np.round(prediction)
         
-    def fit(self, X, y):
+    def fit(self, X, y, reg_parameter=0):
         """
         Args: 
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1] 
+            reg_parameter (float): float to determine strength of regulatrization  penalty
+                if 0, then no linear regression without regularization is performed
                 
         Returns:
             self: Returns an instance of self
@@ -60,7 +62,7 @@ class LogisticRegression:
         def LRgrad(X, y, weights):
             hypothesis = self.logistic_function(np.dot(X, weights)) - y
             return np.dot(np.transpose(X), hypothesis)  / np.size(y)
-        self.weights  = GradientDescent(X, y, LRgrad)
+        self.weights  = GradientDescent(X, y, LRgrad, reg_param = reg_parameter)
         self.learned = True
         return self
         
