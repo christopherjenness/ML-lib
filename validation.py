@@ -1,4 +1,6 @@
-import numpy
+"""Module containing fucntions for validating models and model selection"""
+
+import numpy as np
 
 def test_train_splitter(X, y, test_fraction=0.2, randomize=True):
     """
@@ -36,8 +38,18 @@ def test_train_splitter(X, y, test_fraction=0.2, randomize=True):
 
 def k_fold_generator(data_length, folds=10, randomize=True):
     """
-    Yields indices to split data of given length into test and train sets.
+    generator of indices to split data of given length into test and train sets.
     Useful for K-fold cross validation.
+
+    Args:
+        data_length (int): Length of data to be split into test and training sets
+        folds (int): number of splits to make in the data.
+        randomize (bool): Option to shuffle indices prior to splitting
+
+    Yields:
+        train_indices, test_indices
+            train_indices (np.array): array containing indices for train set
+            test_indices (np.array): array containing indices for test set
     """
     indices = np.arange(data_length)
     if randomize:
@@ -45,12 +57,10 @@ def k_fold_generator(data_length, folds=10, randomize=True):
     step_size = int(data_length / folds)
     current_position = 0
     while True:
-        current_slice = [current_position, current_position + step_size]
-        train_indices = np.append(indices[:current_position], indices[current_position + step_size:])
-        test_indices = indices[current_position: current_position + step_size]
+        next_position = current_position + step_size
+        train_indices = np.append(indices[:current_position], indices[next_position:])
+        test_indices = indices[current_position: next_position]
         yield train_indices, test_indices
         current_position += step_size
         if current_position >= data_length:
             return
-
-
