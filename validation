@@ -1,6 +1,6 @@
 import numpy
 
-def test_train_spliter(X, y, test_fraction=0.2, randomize=True):
+def test_train_splitter(X, y, test_fraction=0.2, randomize=True):
     """
     Splits X and y arrays into test and train sets
 
@@ -33,3 +33,24 @@ def test_train_spliter(X, y, test_fraction=0.2, randomize=True):
     y_train = aggregate[split_index:, 2]
     y_test = aggregate[0:split_index, 2]
     return X_train, X_test, y_train, y_test
+
+def k_fold_generator(data_length, folds=10, randomize=True):
+    """
+    Yields indices to split data of given length into test and train sets.
+    Useful for K-fold cross validation.
+    """
+    indices = np.arange(data_length)
+    if randomize:
+        np.random.shuffle(indices)
+    step_size = int(data_length / folds)
+    current_position = 0
+    while True:
+        current_slice = [current_position, current_position + step_size]
+        train_indices = np.append(indices[:current_position], indices[current_position + step_size:])
+        test_indices = indices[current_position: current_position + step_size]
+        yield train_indices, test_indices
+        current_position += step_size
+        if current_position >= data_length:
+            return
+
+
