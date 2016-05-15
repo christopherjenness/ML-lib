@@ -1,0 +1,35 @@
+import numpy
+
+def test_train_spliter(X, y, test_fraction=0.2, randomize=True):
+    """
+    Splits X and y arrays into test and train sets
+
+    Args:
+        X (np.ndarray): Training data of shape[n_samples, n_features]
+        y (np.ndarray): Target values of shape[n_samples, 1]
+        test_fraction (float): fraction of data to partition into test set
+            Must be in range [0, 1]
+        randomize (bool): optional shuffling of data prior to segregation
+            highly recommended for most validation procedures
+
+    Returns:
+        Returns 4 arrays: X_train, X_test, y_train, y_test
+        X_train (np.ndarray):
+            Training data of shape[n_samples * test_fraction, n_features]
+        X_test (np.ndarray):
+            Testing data of shape[n_samples * (1 - test_fraction), n_features]
+        y_train (np.ndarray):
+            Target Values of shape[n_samples * test_fraction, 1]
+        y_test (np.ndarray):
+            Target Values of shape[n_samples * (1 - test_fraction), 1]
+    """
+    assert 0 <= test_fraction <= 1
+    aggregate = np.column_stack((X, y))
+    if randomize:
+        np.random.shuffle(aggregate)
+    split_index = int(len(y) * test_fraction)
+    X_train = aggregate[split_index:, :2]
+    X_test = aggregate[0:split_index, :2]
+    y_train = aggregate[split_index:, 2]
+    y_test = aggregate[0:split_index, 2]
+    return X_train, X_test, y_train, y_test
