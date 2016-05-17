@@ -71,7 +71,4 @@ class SupportVectorMachine(object):
         X = np.asarray(X)
         prediction = np.dot(X, self.weights) + self.intercept
         return np.sign(prediction)
-        
-svm = SupportVectorMachine()
-svm.fit(X, y)
-svm.predict(X)
+
