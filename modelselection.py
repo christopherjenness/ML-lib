@@ -1,6 +1,7 @@
 """Useful algorithms for selecting models"""
 
 import numpy as np
+import itertools
 
 def best_subset(X, y, model, parameters, error_measure, direction='forward'):
     """
@@ -16,9 +17,11 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
         error_measure (function): function(y, predictions) for measuring the model fit.
             For example, MSE error from error module
         parameters (int): number of parameters in subset to return
-        direction: {'forward', 'backward'}
+        direction: {'forward', 'backward', 'combinatorial'}
             forward adds one parameter at a time in a greedy manner
             backwards removes one parameter at a time in a greedy manner
+            combinatorial tries all combinations of parameters
+                combinatorial is not reccomended for large number of parameters
 
     Returns:
         current_params (np.ndarray): shape[parameters, 1]
@@ -27,8 +30,8 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
 
     n_features = np.shape(X)[1]
     n_samples = np.shape(X)[0]
-    if direction not in ['forward', 'backward']:
-        raise  NameError("direction must be 'forward' or 'backward'")
+    if direction not in ['forward', 'backward', 'combinatorial']:
+        raise  NameError("direction must be 'forward', 'backward', or 'combinatorial'")
     if direction == 'forward':
         param_count = 0
         current_params = []
@@ -53,7 +56,6 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                         best_param, best_error = feature, test_error
             current_params.append(best_param)
             param_count += 1
-        return current_params
     if direction == 'backward':
         param_count = n_features
         current_params = list(range(n_features))
@@ -73,4 +75,16 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                         worst_param, worst_error = feature, test_error
             current_params.remove(worst_param)
             param_count -= 1
-        return current_params
+    if direction == 'combinatorial':
+        all_params = list(range(n_features))
+        best_params = np.inf
+        best_error = np.inf
+        for param_subset in itertools.combinations(all_params, parameters):
+                test_array = X[:, param_subset]
+                classifier = model()
+                classifier.fit(test_array, y)
+                test_error = error_measure(y, classifier.predict(test_array))
+                if test_error < best_error:
+                    best_params, best_error = param_subset, test_error
+        current_params = list(best_params)
+    return sorted(current_params)
