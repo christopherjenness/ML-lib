@@ -1,14 +1,17 @@
 """
-Regularized discriminant analysis is a compromise between 
+Regularized discriminant analysis is a compromise between
 linear discrimenent analysis and quadratic discrimenent analysis.
 """
 
 import numpy as np
-import itertools
 
 class RegularizedDisriminentAnalysis():
-
-    def __init__(self, alpha = 1):
+    """
+    Class for implimenting Regularized Discriminent Analysis
+    LDA is performed when alpha == 1
+    QDA is performed when alpha == 2
+    """
+    def __init__(self, alpha=1):
         """
         Attributes::
             learned (bool): Keeps track of if RDA has been fit
@@ -20,7 +23,7 @@ class RegularizedDisriminentAnalysis():
             class_priors (dict): prior probability of each class.
                 determined via fraction of training samples in each class
             class_means (dict): vector means of each class
-            regularized_covariances (np.ndarray): RDA covariances. 
+            regularized_covariances (np.ndarray): RDA covariances.
                 weighted combination of QDA class covariance and LDA pooled covariance
         """
         self.learned = False
@@ -39,9 +42,6 @@ class RegularizedDisriminentAnalysis():
         Returns:
             self: Returns an instance of self
         """
-        n_samples = np.shape(X)[0]
-        n_samples = np.shape(X)[1]
-        n_classes = len(np.unique(y))
         self.class_names = np.unique(y)
         class_covariances = {}
         pooled_covariances = 0
@@ -50,7 +50,7 @@ class RegularizedDisriminentAnalysis():
             class_indices = np.where(y == i)[0]
             class_samples = X[class_indices, :]
             self.class_priors[i] = float(len(class_indices)) / len(y)
-            self.class_means[i] = np.mean(class_samples, axis = 0)
+            self.class_means[i] = np.mean(class_samples, axis=0)
             class_covariances[i] = np.cov(class_samples, rowvar=0)
             #add contribution of individual class covariance to the pooled covariance)
             pooled_covariances += class_covariances[i] * self.class_priors[i]
@@ -78,7 +78,7 @@ class RegularizedDisriminentAnalysis():
         for i in self.class_names:
             # Divid the class delta calculation into 3 parts
             part1 = -0.5 * np.linalg.det(self.regularized_covariances[i])
-            part2 = -0.5 * np.dot(np.dot((x - self.class_means[i]).T,  np.linalg.pinv(self.regularized_covariances[i])), (x - self.class_means[i]))
+            part2 = -0.5 * np.dot(np.dot((x - self.class_means[i]).T, np.linalg.pinv(self.regularized_covariances[i])), (x - self.class_means[i]))
             part3 = np.log(self.class_priors[i])
             class_deltas[i] = part1 + part2 + part3
-        return max(class_deltas, key = class_deltas.get)
+        return max(class_deltas, key=class_deltas.get)
