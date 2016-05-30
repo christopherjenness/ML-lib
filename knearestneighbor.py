@@ -53,7 +53,7 @@ class KNearestNeighbor(object):
         for row in range(np.shape(self.samples)[0]):
             #add distance from x to sample row to distances vector
             distances = np.append(distances, np.linalg.norm(x - self.samples[row, :]))
-            nearestneighbors = distances.argsort()[-k:]
+            nearestneighbors = distances.argsort()[:k]
         if model == 'regression':
             prediction = self.values[nearestneighbors].mean()
         if model == 'classification':
