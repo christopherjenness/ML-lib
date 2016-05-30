@@ -6,8 +6,8 @@ class LogisticRegression:
     """Logistic Regression classifier with gradient descent implementation"""
     def __init__(self):
         """
-        Attributes::
-            learned (bool): Keeps track of if perceptron has been fit
+        Attributes:
+            learned (bool): Keeps track of if model has been fit
             weights (np.ndarray): vector of weights for linear separation
         """
         self.learned = False
