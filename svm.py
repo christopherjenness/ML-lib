@@ -6,9 +6,26 @@ import math
 Support Vector Machine for classification 
 """
 
+#Useful Kernels
+def linear_kernel(**kwargs):
+    def f(x1, x2):
+        return np.inner(x1, x2)
+    return f
+    
+def polynomial_kernel(power, coef, **kwargs):
+    def f(x1, x2):
+        return (np.inner(x1, x2) + coef)**power
+    return f
+    
+def rbf_kernel(gamma, **kwargs):
+    def f(x1, x2):
+        distance = np.linalg.norm(x1-x2) ** 2
+        return np.exp(-gamma * distance)
+    return f
+
 class SupportVectorMachine(object):
     
-    def __init__(self, kernel = 'linear', power = 2, gamma = 0.1, coef = 0):
+    def __init__(self, kernel = linear_kernel, power = 2, gamma = 0.02, coef = 1):
         """
         Attributes:
             learned (bool): Keeps track of if perceptron has been fit
@@ -17,12 +34,17 @@ class SupportVectorMachine(object):
             kernel: {'linear', 'polynomial', 'rbf', 'tanh'}
         """
         self.learned = False
-        self.weights = np.NaN
+        self.SValphas = []
+        self.SVinputs = []
+        self.SVoutputs = []
         self.intecept = np.NaN
-        self.kernel = kernel
+        self.kernel = kernel(power=power, gamma=gamma, coef=coef)
         self.power = power
         self.gamma = gamma
         self.coef = coef
+        
+        print(self.kernel)
+        
         
     def fit(self, X, y):
         """
@@ -40,30 +62,39 @@ class SupportVectorMachine(object):
         """
         n_samples, n_features = np.shape(X)
         
-        if self.kernel == 'linear':
-            kernel_value = self.linear_kernel(X)
+        kernel_values = np.zeros((n_samples, n_samples))
+        for row in range(n_samples):
+            for col in range(n_samples):
+                kernel_values[row,col] = self.kernel(X[row, :], X[col, :])
+        print (kernel_values)
         
         # Use cvxopt to solve SVM optimization problem
-        P = cvxopt.matrix(np.outer(y, y) * kernel_value, tc='d')
+        
+        
+        P = cvxopt.matrix(np.outer(y, y) * kernel_values, tc='d')
         q = cvxopt.matrix(np.ones(n_samples) * -1)
         G = cvxopt.matrix(np.diag(np.ones(n_samples)) * -1)
-        # There is something fishy here.  Should h equal negative 1?  Should b = negative 1?
         h = cvxopt.matrix(np.zeros(n_samples))
         A = cvxopt.matrix(y, (1,n_samples),  tc='d')
         b = cvxopt.matrix(0,  tc='d')
         
         minimization = cvxopt.solvers.qp(P, q, G, h, A, b)
-        alpha = np.ravel(minimization['x'])
-        self.weights = np.sum((X.T * (alpha * y)).T, axis=0)
-        self.intercept = 0
-        for index in alpha:
-            if index > 10**-4:
-                self.intercept = (1 - y[index] * np.dot(X[index], self.weights)) / y[index]
-                break
+        alphas = np.ravel(minimization['x'])
+        #Extract support vectors
+        for index, alpha in enumerate(alphas):
+            print(index, alpha)
+            if alpha > 10**-6:
+                self.SValphas.append(alpha)
+                self.SVinputs.append(X[index, :])
+                self.SVoutputs.append(y[index])
+        # Use first support vector to calculate intercept
+        self.intercept = self.SVoutputs[0]
+        for SV in range(len(self.SValphas)):
+            self.intercept -= self.SValphas[SV] * self.SVoutputs[SV] * self.kernel(self.SVinputs[SV], self.SVinputs[0])
         self.learned = True
         return self
         
-    def predict(self, X):
+    def predict(self, x):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
@@ -77,21 +108,12 @@ class SupportVectorMachine(object):
         """
         if not self.learned:
             raise NameError('Fit model first')
-        X = np.asarray(X)
-        prediction = np.dot(X, self.weights) + self.intercept
+        prediction = 0
+        for SV in range(len(self.SValphas)):
+            prediction += self.SValphas[SV] * self.SVoutputs[SV] * self.kernel(self.SVinputs[SV], x)
+        prediction += self.intercept
         return np.sign(prediction)
         
+        
 
-    def linear_kernel(self, X):
-        return np.dot(X, X.T)
-
-    def polynomial_kernel(self, x1, x2, c, power):
-        return (np.dot(x1, x2) + c)**power
-
-    def rbf_kernel(self, x1, x2, gamma):
-        difference = x1 - x2
-        return np.exp(-gamma * (np.dot(difference, difference.T)**2))
-
-    def tanh_kernel(self, x1, x2, k, c):
-        return math.tanh(k * np.dot(x1, x2) + c)
 
