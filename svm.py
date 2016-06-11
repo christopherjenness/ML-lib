@@ -25,7 +25,7 @@ def rbf_kernel(gamma, **kwargs):
 
 class SupportVectorMachine(object):
     
-    def __init__(self, kernel = linear_kernel, power = 2, gamma = 0.02, coef = 1):
+    def __init__(self, C = 0, kernel = linear_kernel, power = 2, gamma = 0.02, coef = 1):
         """
         Attributes:
             learned (bool): Keeps track of if perceptron has been fit
@@ -42,8 +42,7 @@ class SupportVectorMachine(object):
         self.power = power
         self.gamma = gamma
         self.coef = coef
-        
-        print(self.kernel)
+        self.C = C
         
         
     def fit(self, X, y):
@@ -66,23 +65,29 @@ class SupportVectorMachine(object):
         for row in range(n_samples):
             for col in range(n_samples):
                 kernel_values[row,col] = self.kernel(X[row, :], X[col, :])
-        print (kernel_values)
         
         # Use cvxopt to solve SVM optimization problem
         
-        
         P = cvxopt.matrix(np.outer(y, y) * kernel_values, tc='d')
         q = cvxopt.matrix(np.ones(n_samples) * -1)
-        G = cvxopt.matrix(np.diag(np.ones(n_samples)) * -1)
+        #G = cvxopt.matrix(np.diag(np.ones(n_samples)) * -1)
+        G = cvxopt.matrix(np.identity(n_samples) * -1)
         h = cvxopt.matrix(np.zeros(n_samples))
         A = cvxopt.matrix(y, (1,n_samples),  tc='d')
         b = cvxopt.matrix(0,  tc='d')
+        
+        if self.C > 0:
+            G_max = np.identity(n_samples) * -1
+            G_min = np.identity(n_samples)
+            G = cvxopt.matrix(np.vstack((G_max, G_min)))
+            h_max = cvxopt.matrix(np.zeros(n_samples))
+            h_min = cvxopt.matrix(np.ones(n_samples) * self.C)
+            h = cvxopt.matrix(np.vstack((h_max, h_min)))
         
         minimization = cvxopt.solvers.qp(P, q, G, h, A, b)
         alphas = np.ravel(minimization['x'])
         #Extract support vectors
         for index, alpha in enumerate(alphas):
-            print(index, alpha)
             if alpha > 10**-6:
                 self.SValphas.append(alpha)
                 self.SVinputs.append(X[index, :])
