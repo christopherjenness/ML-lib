@@ -25,26 +25,35 @@ def rbf_kernel(gamma, **kwargs):
 
 class SupportVectorMachine(object):
     
-    def __init__(self, C = 0, kernel = linear_kernel, power = 2, gamma = 0.02, coef = 1):
+    def __init__(self, C=0, kernel=linear_kernel, power=2, gamma=0.02, coef=1):
         """
+        Args:
+            C (float): weight of penalty for misclassified points in soft-margin error
+                if C == 0, then hard-margin SVM is used
+            kernel: {linear_kernel, polynomial_kernel, rbf_kernel}
+                kernel method to use
+            power (int): exponent in polynomial kernel
+            gamma (float): rbf parameter
+            coef (float): offset parameter in polynomial kernel
+
         Attributes:
             learned (bool): Keeps track of if perceptron has been fit
-            weights (np.ndarray): vector of weights for linear separation
-            intercept (float): intercept of learned SVM
-            kernel: {'linear', 'polynomial', 'rbf', 'tanh'}
+            SValphas (list): alphas associated with the model's support vectors
+            SVinputs (list): input values of model's support vectors
+            SVoutputs (list): output values of model's support vectors
+            self.intercept (float): intercept value of model
         """
+        self.C = C
+        self.kernel = kernel(power=power, gamma=gamma, coef=coef)
+        self.power = power
+        self.gamma = gamma
+        self.coef = coef
         self.learned = False
         self.SValphas = []
         self.SVinputs = []
         self.SVoutputs = []
         self.intecept = np.NaN
-        self.kernel = kernel(power=power, gamma=gamma, coef=coef)
-        self.power = power
-        self.gamma = gamma
-        self.coef = coef
-        self.C = C
-        
-        
+
     def fit(self, X, y):
         """
         Args:
