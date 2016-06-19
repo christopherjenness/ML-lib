@@ -1,6 +1,5 @@
 """
-This module includes the gradient descent algorithm.  By taking small steps
-down the negative of the gradient, local minima are reached.
+This module includes descent methods for finding local minima.
 """
 import numpy as np
 
@@ -26,13 +25,13 @@ def gradientdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
             to determine step size.
         backtrack_alpha (float): In range(0, 0.5), accepted decrease in function,
             based on extrapolation
-        backtrack_beta (float): In range(0, 1), how quickly step size is updated 
+        backtrack_beta (float): In range(0, 1), how quickly step size is updated
             when calculating backtrack.
     Returns:
         weights (np.ndarray): shape[n_features, 1]
                 Returns array of weights
     Notes:
-        Currently, backtracking line search is incompatable with 
+        Currently, backtracking line search is incompatable with
         stochastic=True
     """
     # If no initial weights given, initials weights = 0
@@ -62,8 +61,8 @@ def gradientdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
             weights = weights * (1 - alpha * reg_param / len(y)) - alpha * gradient(X, y, weights)
         iteration += 1
     return weights
-    
-def steepestdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
+
+def steepestdescent(X, y, gradient, alpha=0.01, iterations=10000,
                     initial_weights=False, norm="L1"):
     """
     Args:
@@ -83,7 +82,7 @@ def steepestdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
     Notes:
         Currently, only L1 norm is implimented.  In the future, other norms
         can be added.
-    """  
+    """
     # If no initial weights given, initials weights = 0
     if not initial_weights:
         weights = np.zeros(np.shape(X)[1])
@@ -97,21 +96,34 @@ def steepestdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
             weights = weights - alpha * steepest_descent
         iteration += 1
     return weights
-        
-        
-    
-    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+def newtonsmethod(X, y, gradient, hessian, alpha=0.01, iterations=10000,
+                  initial_weights=False):
+    """
+    Args:
+        X (np.ndarray): Training data of shape[n_samples, n_features]
+        y (np.ndarray): Target values of shape[n_samples, 1]
+        gradient (function): Function to compute the gradient
+            Gradient is a function of (X, y, weights)
+        hessien (function): Function to compute the Hessian
+            Hessian is a function of (X)
+        alpha (float): step size during each gradient descent iteration
+        iterations (int): Number of iterations of gradient descent to perform
+        initial_weights (np.ndarray): initial weights for gradient descent
+    Returns:
+        weights (np.ndarray): shape[n_features, 1]
+                Returns array of weights
+    Notes:
+        Pure Newton method (constant step size) is implemented.  Damped Newton
+        method will be implimented in the future using backtracking algorithm (see
+        gradient descent method for backtracking implimentation).
+    """
+    # If no initial weights given, initials weights = 0
+    if not initial_weights:
+        weights = np.zeros(np.shape(X)[1])
+    iteration = 0
+    while iteration < iterations:
+        step_direction = -np.dot(np.linalg.pinv(hessian(X)), gradient(X, y, weights))
+        weights = weights + alpha * step_direction
+        iteration += 1
+    return weights
