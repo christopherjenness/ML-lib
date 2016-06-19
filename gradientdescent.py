@@ -55,15 +55,16 @@ def gradientdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
                 estimate_weights = weights - step_size * gradient(X, y, weights)
                 estimate_cost = cost(X, y, estimate_weights)
                 bound = cost(X, y, weights)  - backtrack_alpha * step_size * (np.linalg.norm(gradient(X, y, weights)))**2
-                print(step_size)
                 if estimate_cost < bound:
                     weights = estimate_weights
                     break
         else:
             weights = weights * (1 - alpha * reg_param / len(y)) - alpha * gradient(X, y, weights)
         iteration += 1
-
     return weights
+
+
+
 
 
 

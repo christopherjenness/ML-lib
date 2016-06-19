@@ -1,10 +1,10 @@
 import numpy as np
 import math
 
-def linear(x1, x2):
+def linear(x1, x2, *args):
     return np.dot(x1, x2.T)
 
-def polynomial(x1, x2, c, power):
+def polynomial(x1, x2, power, coef, *args):
     return (np.dot(x1, x2) + c)**power
 
 def rbf(x1, x2, gamma):

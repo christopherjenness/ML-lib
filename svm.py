@@ -1,22 +1,22 @@
+"""
+Support Vector Machine for classification
+"""
+
+import math
 import numpy as np
 import cvxopt
-import math
-
-"""
-Support Vector Machine for classification 
-"""
 
 #Useful Kernels
 def linear_kernel(**kwargs):
     def f(x1, x2):
         return np.inner(x1, x2)
     return f
-    
+
 def polynomial_kernel(power, coef, **kwargs):
     def f(x1, x2):
         return (np.inner(x1, x2) + coef)**power
     return f
-    
+
 def rbf_kernel(gamma, **kwargs):
     def f(x1, x2):
         distance = np.linalg.norm(x1-x2) ** 2
@@ -24,7 +24,7 @@ def rbf_kernel(gamma, **kwargs):
     return f
 
 class SupportVectorMachine(object):
-    
+
     def __init__(self, C=0, kernel=linear_kernel, power=2, gamma=0.02, coef=1):
         """
         Args:
@@ -69,22 +69,18 @@ class SupportVectorMachine(object):
             ValueError if y contains values other than 0 and 1
         """
         n_samples, n_features = np.shape(X)
-        
+
         kernel_values = np.zeros((n_samples, n_samples))
         for row in range(n_samples):
             for col in range(n_samples):
-                kernel_values[row,col] = self.kernel(X[row, :], X[col, :])
-        
+                kernel_values[row, col] = self.kernel(X[row, :], X[col, :])
+
         # Use cvxopt to solve SVM optimization problem
-        
         P = cvxopt.matrix(np.outer(y, y) * kernel_values, tc='d')
         q = cvxopt.matrix(np.ones(n_samples) * -1)
-        #G = cvxopt.matrix(np.diag(np.ones(n_samples)) * -1)
-        G = cvxopt.matrix(np.identity(n_samples) * -1)
-        h = cvxopt.matrix(np.zeros(n_samples))
-        A = cvxopt.matrix(y, (1,n_samples),  tc='d')
-        b = cvxopt.matrix(0,  tc='d')
-        
+        A = cvxopt.matrix(y, (1, n_samples),  tc='d')
+        b = cvxopt.matrix(0, tc='d')
+
         if self.C > 0:
             G_max = np.identity(n_samples) * -1
             G_min = np.identity(n_samples)
@@ -92,7 +88,11 @@ class SupportVectorMachine(object):
             h_max = cvxopt.matrix(np.zeros(n_samples))
             h_min = cvxopt.matrix(np.ones(n_samples) * self.C)
             h = cvxopt.matrix(np.vstack((h_max, h_min)))
-        
+            
+        else:
+            G = cvxopt.matrix(np.identity(n_samples) * -1)
+            h = cvxopt.matrix(np.zeros(n_samples))
+
         minimization = cvxopt.solvers.qp(P, q, G, h, A, b)
         alphas = np.ravel(minimization['x'])
         #Extract support vectors
@@ -107,7 +107,7 @@ class SupportVectorMachine(object):
             self.intercept -= self.SValphas[SV] * self.SVoutputs[SV] * self.kernel(self.SVinputs[SV], self.SVinputs[0])
         self.learned = True
         return self
-        
+
     def predict(self, x):
         """
         Args:
@@ -127,7 +127,3 @@ class SupportVectorMachine(object):
             prediction += self.SValphas[SV] * self.SVoutputs[SV] * self.kernel(self.SVinputs[SV], x)
         prediction += self.intercept
         return np.sign(prediction)
-        
-        
-
-
