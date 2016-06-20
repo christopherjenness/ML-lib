@@ -9,10 +9,12 @@ class KernelMethods(object):
     def __init__(self):
         self.learned = False
         self.X = np.NaN
+        self.X_intercept = np.NaN
         self.y = np.NaN
         
     def fit(self, X, y):
-        self.X = X
+        self.X = np.asarray(X)
+        self.X_intercept = np.column_stack((np.ones(np.shape(X)[0]), X))
         self.y = y
         self.learned = True
 
@@ -41,12 +43,24 @@ class KernelMethods(object):
             print(numerator, denominator)
         return numerator / denominator
         
-    def locallinearregression():
+    def locallinearregression(self, x, kernel, gamma):
         """
         Local linear regression eliminates bias at boundries
-        of domain.
+        of domain.  It uses weighted least squares, determining
+        weights from the kernel.
         """
-        return True
+        W = []
+        for row in range(np.shape(self.X)[0]):
+            W.append(kernel(self.X[row, :], x, gamma))
+        W = np.diag(W)
+        #Calculate solution using closed form solution
+        solution_a = np.linalg.pinv(self.X_intercept.T.dot(W).dot(self.X_intercept))
+        solution_b = self.X_intercept.T.dot(W).dot(self.y)
+        solution = np.dot(solution_a, solution_b)
+        x = np.asarray(x)
+        x = np.column_stack((1, x))
+        prediction = np.inner(x, solution)
+        return int(prediction)
         
     def localpolynomialregression():
         """
@@ -54,7 +68,6 @@ class KernelMethods(object):
         curvature of domain.
         """
         return True
-
 
 
 
