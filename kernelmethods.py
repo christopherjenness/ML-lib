@@ -33,6 +33,7 @@ class KernelMethods(object):
         return (1 - t**3)**3
         
     def nadarayaaverage(self, x, kernel, gamma):
+        x = np.array(x)
         if self.learned == False:
             raise NameError('Please fit model first')
         numerator = 0
@@ -60,14 +61,19 @@ class KernelMethods(object):
         x = np.asarray(x)
         x = np.column_stack((1, x))
         prediction = np.inner(x, solution)
-        return int(prediction)
-        
-    def localpolynomialregression():
-        """
-        Local polynomial regression eliminates bias at internal
-        curvature of domain.
-        """
-        return True
+        return float(prediction)
+
+    def kerneldensityestimate(self, x, kernel, gamma):
+        N = len(x)
+        estimate = 0
+        for row in range(np.shape(self.X)[0]):
+            x_i = np.array(x) - self.X[row, :]
+            gaussiankernel = (1/(2*np.pi)**0.5 * gamma**2)**N * np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2)) 
+            print(gaussiankernel)
+            estimate += gaussiankernel
+        estimate /= N
+        return estimate
+
 
 
 
