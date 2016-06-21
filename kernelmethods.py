@@ -34,7 +34,7 @@ class KernelMethods(object):
         
     def nadarayaaverage(self, x, kernel, gamma):
         x = np.array(x)
-        if self.learned == False:
+        if not self.learned:
             raise NameError('Please fit model first')
         numerator = 0
         denominator = 0
@@ -63,19 +63,36 @@ class KernelMethods(object):
         prediction = np.inner(x, solution)
         return float(prediction)
 
-    def kerneldensityestimate(self, x, kernel, gamma):
+    @staticmethod
+    def kerneldensityestimate(samples, x, gamma):
+        samples = np.matrix(samples)
         N = len(x)
         estimate = 0
-        for row in range(np.shape(self.X)[0]):
-            x_i = np.array(x) - self.X[row, :]
+        for row in range(np.shape(samples)[0]):
+            x_i = np.array(x) - samples[row, :]
+            print(x_i)
             gaussiankernel = (1/(2*np.pi)**0.5 * gamma**2)**N * np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2)) 
             print(gaussiankernel)
             estimate += gaussiankernel
         estimate /= N
         return estimate
-
-
-
+        
+    def kerneldensitypredict(self, x, gamma):
+        if not self.learned:
+            raise NameError('Please fit model first')
+        class_names = np.unique(self.y)
+        class_probabilities = {}
+        for i in class_names:
+            class_indices = np.where(self.y == i)[0]
+            print (i, class_indices)
+            try:
+                class_samples = self.X[class_indices, :]
+            except:
+                class_samples = self.X[class_indices]
+            class_prior = float(len(class_indices)) / len(self.y)
+            kde = self.kerneldensityestimate(class_samples, x, gamma)
+            class_probabilities[i] = kde * class_prior
+        return max(class_probabilities, key=class_probabilities.get)
 
 
 
