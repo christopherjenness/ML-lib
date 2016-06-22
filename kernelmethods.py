@@ -49,6 +49,11 @@ class KernelMethods(object):
         Local linear regression eliminates bias at boundries
         of domain.  It uses weighted least squares, determining
         weights from the kernel.
+        
+        Args:
+            x (np.array): Training data of shape[1, n_features]
+                note: currently only single samples can be predicted
+                at a time.
         """
         W = []
         for row in range(np.shape(self.X)[0]):
