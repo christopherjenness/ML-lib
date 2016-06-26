@@ -12,9 +12,11 @@ class RegressionTree:
         self.y = None
         self.learned = False
         
-    def fit(self, X, y):
+    def fit(self, X, y, height):
         self.X = X
         self.y = y
+        for layer in range(height):
+            self.add_layer()
     
     def set_node(self, node_number, variable, cutoff):
         self.graph.node[node_number]['variable'] = variable
@@ -45,15 +47,14 @@ class RegressionTree:
                     min_split = split
         return min_feature, min_split
         
-    def add_split(self, node_number):
-        min_feature, min_split = self.CART(self.X, self.y)
+    def add_split(self, node_number, X, y):
+        min_feature, min_split = self.CART(X, y)
         self.set_node(node_number, min_feature, min_split)
-        self.new_nodes(self.nodes, 2)
+        self.new_nodes(node_number, 2)
         
     def get_predecessors(self, node_number):
         predecessors = []
         current_node = node_number
-        print(current_node)
         while len(self.graph.predecessors(current_node)) > 0:
             current_node = self.graph.predecessors(current_node)[0]
             predecessors.append(current_node)
@@ -65,31 +66,45 @@ class RegressionTree:
         predecessors.append(node_number)
         data_indices = np.array(range(len(self.y)))
         node_count = 0
-        print(data_indices)
         while node_count < len(predecessors) - 1:
             current_node = predecessors[node_count]
             next_node = predecessors[node_count + 1]
             current_variable = self.graph.node[current_node]['variable']
             current_cutoff = self.graph.node[current_node]['cutoff']
             if next_node == min(self.graph.successors(current_node)):
-                print( self.X[data_indices, current_variable] < current_cutoff)
                 data_indices = data_indices[self.X[data_indices, current_variable] < current_cutoff]
             else:
                 data_indices = data_indices[self.X[data_indices, current_variable] > current_cutoff]
             node_count +=1
         return data_indices
         
+    def get_leaves(self):
+        leaves = []
+        for node in self.graph.nodes():
+            if len(self.graph.successors(node)) == 0:
+                leaves.append(node)
+        return leaves
+        
+    def add_layer(self):
+        leaves = self.get_leaves()
+        for leaf in leaves:
+            data_indices = self.partition_data(leaf)
+            leaf_X = self.X[data_indices, :]
+            leaf_y = self.y[data_indices]
+            self.add_split(leaf, leaf_X, leaf_y)
+            
+        
             
         
 a = RegressionTree()        
-a.fit(X, y)    
-a.add_split(1)
-a.graph.add_edge(2, 5)
-print(a.partition_data(2))
+a.fit(X, y, 2)    
+a.graph.node
 nx.draw(a.graph)
 pos=nx.spring_layout(a.graph)
 labels = {1: str(a.graph.node[1]['variable']) + ": " +str(a.graph.node[1]['cutoff'])}
 nx.draw_networkx_labels(a.graph, pos, labels)
+
+
 
 
 
