@@ -71,6 +71,8 @@ class RegressionTree:
             next_node = predecessors[node_count + 1]
             current_variable = self.graph.node[current_node]['variable']
             current_cutoff = self.graph.node[current_node]['cutoff']
+            if current_cutoff == None:
+                return []
             if next_node == min(self.graph.successors(current_node)):
                 data_indices = data_indices[self.X[data_indices, current_variable] < current_cutoff]
             else:
@@ -93,16 +95,27 @@ class RegressionTree:
             leaf_y = self.y[data_indices]
             self.add_split(leaf, leaf_X, leaf_y)
             
-        
+    def compute_class_averages(self):
+        for i in range(2, self.nodes + 1):
+            print(i)
+            parent = self.graph.predecessors(i)[0]
+            if self.graph.node[parent]['cutoff'] == None:
+                self.graph.node[i]['classval'] = np.nan
+            else:
+                node_indices = self.partition_data(i)
+                classval = self.y[node_indices].mean()
+                self.graph.node[i]['classval'] = classval
             
         
+        
 a = RegressionTree()        
-a.fit(X, y, 2)    
-a.graph.node
-nx.draw(a.graph)
-pos=nx.spring_layout(a.graph)
-labels = {1: str(a.graph.node[1]['variable']) + ": " +str(a.graph.node[1]['cutoff'])}
-nx.draw_networkx_labels(a.graph, pos, labels)
+a.fit(X, y, 4)    
+a.compute_class_averages()
+print(a.graph.node)
+
+
+
+
 
 
 
