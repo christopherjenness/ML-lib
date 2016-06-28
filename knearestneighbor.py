@@ -30,6 +30,7 @@ class KNearestNeighbor(object):
         """
         self.samples = X
         self.values = y
+        self.learned = True
         return self
 
     def predict(self, x, k=1, model='regression'):
@@ -49,6 +50,8 @@ class KNearestNeighbor(object):
         Raises:
             ValueError if model has not been fit
         """
+        if not self.learned:
+            raise NameError('Fit model first')
         distances = np.array([])
         for row in range(np.shape(self.samples)[0]):
             #add distance from x to sample row to distances vector
