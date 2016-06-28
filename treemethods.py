@@ -17,6 +17,8 @@ class RegressionTree:
         self.y = y
         for layer in range(height):
             self.add_layer()
+        self.compute_class_averages()
+        self.learned = True
     
     def set_node(self, node_number, variable, cutoff):
         self.graph.node[node_number]['variable'] = variable
@@ -47,8 +49,8 @@ class RegressionTree:
                     min_split = split
         return min_feature, min_split
         
-    def add_split(self, node_number, X, y):
-        min_feature, min_split = self.CART(X, y)
+    def add_split(self, node_number, data, values):
+        min_feature, min_split = self.CART(data, values)
         self.set_node(node_number, min_feature, min_split)
         self.new_nodes(node_number, 2)
         
@@ -97,21 +99,37 @@ class RegressionTree:
             
     def compute_class_averages(self):
         for i in range(2, self.nodes + 1):
-            print(i)
             parent = self.graph.predecessors(i)[0]
             if self.graph.node[parent]['cutoff'] == None:
-                self.graph.node[i]['classval'] = np.nan
+                self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
             else:
                 node_indices = self.partition_data(i)
                 classval = self.y[node_indices].mean()
                 self.graph.node[i]['classval'] = classval
+                
+    def predict(self, x):
+        if not self.learned:
+            raise NameError('Fit model first')
+        current_node = 1
+        leaves = self.get_leaves()
+        while current_node not in leaves:
+            children = self.graph.successors(current_node)
+            current_variable = self.graph.node[current_node]['variable']
+            current_cutoff = self.graph.node[current_node]['cutoff']
+            if current_variable == None:
+                return self.graph.node[current_node]['classval']
+            if x[current_variable] > current_cutoff:
+                current_node = children[1]
+            else:
+                current_node = children[0]
+        return self.graph.node[current_node]['classval']
             
-        
-        
-a = RegressionTree()        
-a.fit(X, y, 4)    
-a.compute_class_averages()
-print(a.graph.node)
+            
+    
+    
+    
+    
+    
 
 
 
