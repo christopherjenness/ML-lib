@@ -1,9 +1,13 @@
+import numpy as np
 import networkx as nx
+import abc
 
-class RegressionTree:
+class BaseTree(object):
     """
     
     """
+    __metaclass__ = abc.ABCMeta
+    
     def __init__(self):
         self.graph = nx.DiGraph()
         self.graph.add_node(1, variable = None, cutoff = None)
@@ -11,14 +15,6 @@ class RegressionTree:
         self.X = None
         self.y = None
         self.learned = False
-        
-    def fit(self, X, y, height):
-        self.X = X
-        self.y = y
-        for layer in range(height):
-            self.add_layer()
-        self.compute_class_averages()
-        self.learned = True
     
     def set_node(self, node_number, variable, cutoff):
         self.graph.node[node_number]['variable'] = variable
@@ -106,7 +102,28 @@ class RegressionTree:
                 node_indices = self.partition_data(i)
                 classval = self.y[node_indices].mean()
                 self.graph.node[i]['classval'] = classval
-                
+
+    @abc.abstractmethod            
+    def fit(self, X, y, height):
+        return 
+
+    @abc.abstractmethod            
+    def predict(self, x):
+        return
+            
+class RegressionTree(BaseTree):
+    
+    def __init__(self):
+        BaseTree.__init__(self)
+    
+    def fit(self, X, y, height):
+        self.X = X
+        self.y = y
+        for layer in range(height):
+            self.add_layer()
+        self.compute_class_averages()
+        self.learned = True
+        
     def predict(self, x):
         if not self.learned:
             raise NameError('Fit model first')
@@ -123,19 +140,10 @@ class RegressionTree:
             else:
                 current_node = children[0]
         return self.graph.node[current_node]['classval']
-            
-            
     
     
     
     
     
-
-
-
-
-
-
-
-
-
+    
+    
