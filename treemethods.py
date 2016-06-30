@@ -103,19 +103,6 @@ class BaseTree(object):
                 classval = self.y[node_indices].mean()
                 self.graph.node[i]['classval'] = classval
 
-    @abc.abstractmethod            
-    def fit(self, X, y, height):
-        return 
-
-    @abc.abstractmethod            
-    def predict(self, x):
-        return
-            
-class RegressionTree(BaseTree):
-    
-    def __init__(self):
-        BaseTree.__init__(self)
-    
     def fit(self, X, y, height):
         self.X = X
         self.y = y
@@ -140,6 +127,50 @@ class RegressionTree(BaseTree):
             else:
                 current_node = children[0]
         return self.graph.node[current_node]['classval']
+        
+    @abc.abstractmethod    
+    def compute_class_averages(self):
+        return
+    
+    @abc.abstractmethod
+    def CART(self, inputs, values):
+        return 
+            
+class RegressionTree(BaseTree):
+    
+    def __init__(self):
+        BaseTree.__init__(self)
+        
+    def CART(self, inputs, values):
+        min_error = np.inf
+        min_feature = None
+        min_split = None
+        for feature in range(np.shape(inputs)[1]):
+            feature_vector = inputs[:, feature]
+            sorted_vector = np.unique(np.sort(feature_vector))
+            feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
+            for split in feature_splits:
+                lower_class_average = np.mean(values[feature_vector < split])
+                upper_class_average = np.mean(values[feature_vector > split])
+                lower_class_errors = values[feature_vector < split] - lower_class_average
+                upper_class_errors = values[feature_vector > split] - upper_class_average
+                total_error = np.inner(lower_class_errors, lower_class_errors) + np.inner(upper_class_errors, upper_class_errors)
+                if total_error < min_error:
+                    min_error = total_error
+                    min_feature = feature
+                    min_split = split
+        return min_feature, min_split
+        
+    def compute_class_averages(self):
+        for i in range(2, self.nodes + 1):
+            parent = self.graph.predecessors(i)[0]
+            if self.graph.node[parent]['cutoff'] == None:
+                self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
+            else:
+                node_indices = self.partition_data(i)
+                classval = self.y[node_indices].mean()
+                self.graph.node[i]['classval'] = classval
+    
         
 class ClassificationTree(BaseTree):
     
@@ -178,31 +209,6 @@ class ClassificationTree(BaseTree):
                 node_indices = self.partition_data(i)
                 classval = mode(self.y[node_indices]).mode[0]
                 self.graph.node[i]['classval'] = classval   
-                
-    def fit(self, X, y, height):
-        self.X = X
-        self.y = y
-        for layer in range(height):
-            self.add_layer()
-        self.compute_class_averages()
-        self.learned = True
-        
-    def predict(self, x):
-        if not self.learned:
-            raise NameError('Fit model first')
-        current_node = 1
-        leaves = self.get_leaves()
-        while current_node not in leaves:
-            children = self.graph.successors(current_node)
-            current_variable = self.graph.node[current_node]['variable']
-            current_cutoff = self.graph.node[current_node]['cutoff']
-            if current_variable == None:
-                return self.graph.node[current_node]['classval']
-            if x[current_variable] > current_cutoff:
-                current_node = children[1]
-            else:
-                current_node = children[0]
-        return self.graph.node[current_node]['classval']
     
     
     
