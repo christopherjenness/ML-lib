@@ -11,7 +11,7 @@ class BaseTree(object):
     
     def __init__(self):
         self.graph = nx.DiGraph()
-        self.graph.add_node(1, variable = None, cutoff = None)
+        self.graph.add_node(1)
         self.nodes = 1
         self.X = None
         self.y = None
@@ -90,21 +90,10 @@ class BaseTree(object):
         leaves = self.get_leaves()
         for leaf in leaves:
             data_indices = self.partition_data(leaf)
-            print('_____')
-            print(leaf, data_indices)
             leaf_X = self.X[data_indices, :]
             leaf_y = self.y[data_indices]
             self.add_split(leaf, leaf_X, leaf_y)
-            
-    def compute_class_averages(self):
-        for i in range(2, self.nodes + 1):
-            parent = self.graph.predecessors(i)[0]
-            if self.graph.node[parent]['cutoff'] == None:
-                self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
-            else:
-                node_indices = self.partition_data(i)
-                classval = self.y[node_indices].mean()
-                self.graph.node[i]['classval'] = classval
+
 
     def fit(self, X, y, height):
         self.X = X
@@ -221,29 +210,30 @@ class Prim(BaseTree):
         predecessors = self.get_predecessors(node_number)
         predecessors.reverse()
         predecessors.append(node_number)
+        data = self.X
         data_indices = np.array(range(len(self.y)))
         node_count = 0
         while node_count < len(predecessors) - 1:
             current_node = predecessors[node_count]
             next_node = predecessors[node_count + 1]
             cutoff_dict = self.graph.node[current_node]['cutoffs']
-            for key in cutoff_dict:
-                current_variable = key
-                current_cutoff_min = cutoff_dict[key][0]
-                current_cutoff_max = cutoff_dict[key][0]
-                boxed_data = data_indices[(self.X[data_indices, current_variable] < current_cutoff_max) & (self.X[data_indices, current_variable] > current_cutoff_min)]
-                if next_node == min(self.graph.successors(current_node)):
-                    print('asdf')
-                    data_indices = boxed_data
-                else:
-                    print('asdfasdf')
-                    data_indices = np.delete(data_indices, boxed_data)
-                node_count +=1
+            if cutoff_dict == None:
+                return None
+            in_box = self.partition_data_nodeless(data, cutoff_dict)
+            if in_box == None:
+                return None
+            if next_node == min(self.graph.successors(current_node)):
+                data_indices = np.intersect1d(data_indices, in_box)
+            else:
+                data_indices = np.intersect1d(data_indices, np.delete(data_indices, in_box))
+            node_count +=1
         return data_indices
     
     @staticmethod    
     def partition_data_nodeless(inputs, cutoff_dict):
         data_indices = np.array(range(np.shape(inputs)[0]))
+        if cutoff_dict == None:
+            return None
         for key in cutoff_dict:
             current_variable = key
             current_cutoff_min = cutoff_dict[key][0]
@@ -256,8 +246,10 @@ class Prim(BaseTree):
     def CART(self, inputs, values):
         inputs = inputs
         values = values
-        # Aim for box with 10% of initial box size
-        target_partition_size = int(len(values) * 0.1)
+        # Aim for box with box of 10 members
+        target_partition_size = 10
+        if len(values) < 10:
+            return None
         # Initalizes Boxes
         # cutoffs is a dictionary where each key is a feature and each value is 
         # a list [min_cutoff, max_cutoff]
@@ -266,7 +258,8 @@ class Prim(BaseTree):
             cutoffs[feature] = [-np.inf, np.inf]
         response_mean = np.mean(values)
         # Contracting phase
-        for i in range(4):
+        while len(values) > target_partition_size:
+            response_mean = np.mean(values)
             best_feature = None
             best_cutoff = [-np.inf, np.inf]
             response_mean_improvement = 0
@@ -286,6 +279,8 @@ class Prim(BaseTree):
                         best_cutoff = [lower_split, np.inf]
                     else:
                         best_cutoff = [-np.inf, upper_split]
+            if best_feature == None:
+                return cutoffs
             cutoffs[best_feature] = best_cutoff
             boxed_indices = self.partition_data_nodeless(inputs, cutoffs)
             inputs = inputs[boxed_indices, :]
@@ -304,6 +299,37 @@ class Prim(BaseTree):
         for i in range(number):
             self.nodes += 1
             self.graph.add_edge(parent, self.nodes)
+            
+    def compute_class_averages(self):
+        for i in range(2, self.nodes + 1):
+            parent = self.graph.predecessors(i)[0]
+            if self.graph.node[parent]['cutoffs'] == None:
+                self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
+            else:
+                node_indices = self.partition_data(i)
+                classval = self.y[node_indices].mean()
+                self.graph.node[i]['classval'] = classval
+                
+    def predict(self, x):
+        if not self.learned:
+            raise NameError('Fit model first')
+        current_node = 1
+        leaves = self.get_leaves()
+        while current_node not in leaves:
+            children = self.graph.successors(current_node)
+            if self.graph.node[current_node]['cutoffs'] == None:
+                return self.graph.node[current_node]['classval']
+            for key in self.graph.node[current_node]['cutoffs']:
+                within_box = True
+                current_variable = key
+                current_cutoff = self.graph.node[current_node]['cutoffs'][key]
+                if x[current_variable] < self.graph.node[current_node]['cutoffs'][key][0] or x[current_variable] > self.graph.node[current_node]['cutoffs'][key][1]:
+                    within_box = False
+            if within_box:
+                current_node = children[0]
+            else:
+                current_node = children[1]
+        return self.graph.node[current_node]['classval']
                         
                         
                         
