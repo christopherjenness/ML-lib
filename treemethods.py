@@ -248,7 +248,7 @@ class Prim(BaseTree):
         values = values
         # Aim for box with box of 10 members
         target_partition_size = 10
-        if len(values) < 10:
+        if len(values) <= 10:
             return None
         # Initalizes Boxes
         # cutoffs is a dictionary where each key is a feature and each value is 
@@ -257,14 +257,15 @@ class Prim(BaseTree):
         for feature in range(np.shape(inputs)[1]):
             cutoffs[feature] = [-np.inf, np.inf]
         response_mean = np.mean(values)
-        # Contracting phase
         while len(values) > target_partition_size:
-            response_mean = np.mean(values)
+            response_mean = -np.inf
             best_feature = None
             best_cutoff = [-np.inf, np.inf]
             response_mean_improvement = 0
             for feature in range(np.shape(inputs)[1]):
                 feature_vector = inputs[:, feature]
+                if len(np.unique(feature_vector)) < 2:
+                    continue
                 sorted_vector = np.unique(np.sort(feature_vector))
                 feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
                 lower_split = feature_splits[int(len(feature_splits) * 0.1)]
@@ -272,7 +273,7 @@ class Prim(BaseTree):
                 upper_class_average = np.mean(values[feature_vector > lower_split])
                 lower_class_average = np.mean(values[feature_vector < upper_split])
                 max_average = max(upper_class_average, lower_class_average)
-                if max_average - response_mean > response_mean_improvement:
+                if max_average > response_mean:
                     response_mean_improvement = max_average - response_mean
                     best_feature = feature
                     if upper_class_average > lower_class_average:
