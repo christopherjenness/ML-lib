@@ -90,6 +90,8 @@ class BaseTree(object):
         leaves = self.get_leaves()
         for leaf in leaves:
             data_indices = self.partition_data(leaf)
+            print('_____')
+            print(leaf, data_indices)
             leaf_X = self.X[data_indices, :]
             leaf_y = self.y[data_indices]
             self.add_split(leaf, leaf_X, leaf_y)
@@ -215,7 +217,7 @@ class Prim(BaseTree):
     """
     Patient Rule Induction Method
     """
-    def node_partition_data(self, node_number):
+    def partition_data(self, node_number):
         predecessors = self.get_predecessors(node_number)
         predecessors.reverse()
         predecessors.append(node_number)
@@ -231,14 +233,16 @@ class Prim(BaseTree):
                 current_cutoff_max = cutoff_dict[key][0]
                 boxed_data = data_indices[(self.X[data_indices, current_variable] < current_cutoff_max) & (self.X[data_indices, current_variable] > current_cutoff_min)]
                 if next_node == min(self.graph.successors(current_node)):
+                    print('asdf')
                     data_indices = boxed_data
                 else:
+                    print('asdfasdf')
                     data_indices = np.delete(data_indices, boxed_data)
                 node_count +=1
         return data_indices
     
     @staticmethod    
-    def partition_data(inputs, cutoff_dict):
+    def partition_data_nodeless(inputs, cutoff_dict):
         data_indices = np.array(range(np.shape(inputs)[0]))
         for key in cutoff_dict:
             current_variable = key
@@ -246,7 +250,6 @@ class Prim(BaseTree):
             current_cutoff_max = cutoff_dict[key][1]
             boxed_data = data_indices[(inputs[data_indices, current_variable] < current_cutoff_max) & (inputs[data_indices, current_variable] > current_cutoff_min)]
             data_indices = boxed_data
-            print(key, current_cutoff_min, boxed_data, data_indices)
         return data_indices
         
         
@@ -276,7 +279,6 @@ class Prim(BaseTree):
                 upper_class_average = np.mean(values[feature_vector > lower_split])
                 lower_class_average = np.mean(values[feature_vector < upper_split])
                 max_average = max(upper_class_average, lower_class_average)
-                print(max_average, response_mean, response_mean_improvement)
                 if max_average - response_mean > response_mean_improvement:
                     response_mean_improvement = max_average - response_mean
                     best_feature = feature
@@ -285,16 +287,23 @@ class Prim(BaseTree):
                     else:
                         best_cutoff = [-np.inf, upper_split]
             cutoffs[best_feature] = best_cutoff
-            boxed_indices = self.partition_data(inputs, cutoffs)
+            boxed_indices = self.partition_data_nodeless(inputs, cutoffs)
             inputs = inputs[boxed_indices, :]
             values = values[boxed_indices]
         return cutoffs
         
     def add_split(self, node_number, data, values):
         cutoffs = self.CART(data, values)
-        self.set_node(node_number, min_feature, min_split)
+        self.set_node(node_number, cutoffs)
         self.new_nodes(node_number, 2)
                         
+    def set_node(self, node_number, cutoffs):
+        self.graph.node[node_number]['cutoffs'] = cutoffs
+        
+    def new_nodes(self, parent, number):
+        for i in range(number):
+            self.nodes += 1
+            self.graph.add_edge(parent, self.nodes)
                         
                         
                         
