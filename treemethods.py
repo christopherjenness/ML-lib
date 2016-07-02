@@ -214,12 +214,13 @@ class Prim(BaseTree):
         data_indices = np.array(range(len(self.y)))
         node_count = 0
         while node_count < len(predecessors) - 1:
+            temp_data = data[data_indices]
             current_node = predecessors[node_count]
             next_node = predecessors[node_count + 1]
             cutoff_dict = self.graph.node[current_node]['cutoffs']
             if cutoff_dict == None:
                 return None
-            in_box = self.partition_data_nodeless(data, cutoff_dict)
+            in_box = self.partition_data_nodeless(temp_data, cutoff_dict)
             if in_box == None:
                 return None
             if next_node == min(self.graph.successors(current_node)):
@@ -227,6 +228,8 @@ class Prim(BaseTree):
             else:
                 data_indices = np.intersect1d(data_indices, np.delete(data_indices, in_box))
             node_count +=1
+            if len(data_indices)==0:
+                return []
         return data_indices
     
     @staticmethod    
@@ -246,48 +249,40 @@ class Prim(BaseTree):
     def CART(self, inputs, values):
         inputs = inputs
         values = values
-        # Aim for box with box of 10 members
-        target_partition_size = 10
-        if len(values) <= 10:
-            return None
-        # Initalizes Boxes
-        # cutoffs is a dictionary where each key is a feature and each value is 
-        # a list [min_cutoff, max_cutoff]
+        target_bin_size = 10
         cutoffs = {}
-        for feature in range(np.shape(inputs)[1]):
-            cutoffs[feature] = [-np.inf, np.inf]
-        response_mean = np.mean(values)
-        while len(values) > target_partition_size:
-            response_mean = -np.inf
-            best_feature = None
+        if len(values) <= 2* target_bin_size - 1:
+            return cutoffs
+        for i in range(np.shape(inputs)[1]):
+            cutoffs[i] = [-np.inf, np.inf]
+        print (len(values))
+        while len(values) > target_bin_size:
+            best_variable = None
             best_cutoff = [-np.inf, np.inf]
-            response_mean_improvement = 0
+            mean_response = -np.inf
             for feature in range(np.shape(inputs)[1]):
                 feature_vector = inputs[:, feature]
-                if len(np.unique(feature_vector)) < 2:
-                    continue
                 sorted_vector = np.unique(np.sort(feature_vector))
                 feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
-                lower_split = feature_splits[int(len(feature_splits) * 0.1)]
-                upper_split = feature_splits[int(len(feature_splits) * 0.9)]
-                upper_class_average = np.mean(values[feature_vector > lower_split])
-                lower_class_average = np.mean(values[feature_vector < upper_split])
-                max_average = max(upper_class_average, lower_class_average)
-                if max_average > response_mean:
-                    response_mean_improvement = max_average - response_mean
-                    best_feature = feature
-                    if upper_class_average > lower_class_average:
-                        best_cutoff = [lower_split, np.inf]
-                    else:
-                        best_cutoff = [-np.inf, upper_split]
-            if best_feature == None:
+                split = int(len(feature_splits) * 0.05)
+                print('asdf', split)
+                boxed_data = values[inputs[:, feature] > feature_splits[split]]
+                print(np.mean(boxed_data))
+                if np.mean(boxed_data) > mean_response:
+                    mean_response = np.mean(boxed_data)
+                    best_cutoff = [feature_splits[split], np.inf]
+                    best_variable = feature
+            if best_variable == None:
                 return cutoffs
-            cutoffs[best_feature] = best_cutoff
-            boxed_indices = self.partition_data_nodeless(inputs, cutoffs)
-            inputs = inputs[boxed_indices, :]
-            values = values[boxed_indices]
+            cutoffs[best_variable] = best_cutoff
+            indices = self.partition_data_nodeless(inputs, cutoffs)
+            inputs = inputs[indices, :]
+            values = values[indices]
+            print(len(values))
         return cutoffs
-        
+
+                    
+            
     def add_split(self, node_number, data, values):
         cutoffs = self.CART(data, values)
         self.set_node(node_number, cutoffs)
@@ -320,8 +315,8 @@ class Prim(BaseTree):
             children = self.graph.successors(current_node)
             if self.graph.node[current_node]['cutoffs'] == None:
                 return self.graph.node[current_node]['classval']
+            within_box = True
             for key in self.graph.node[current_node]['cutoffs']:
-                within_box = True
                 current_variable = key
                 current_cutoff = self.graph.node[current_node]['cutoffs'][key]
                 if x[current_variable] < self.graph.node[current_node]['cutoffs'][key][0] or x[current_variable] > self.graph.node[current_node]['cutoffs'][key][1]:
@@ -331,6 +326,14 @@ class Prim(BaseTree):
             else:
                 current_node = children[1]
         return self.graph.node[current_node]['classval']
+        
+    def add_layer(self):
+        leaves = self.get_leaves()
+        for leaf in leaves:
+            data_indices = self.partition_data(leaf)
+            leaf_X = self.X[data_indices, :]
+            leaf_y = self.y[data_indices]
+            self.add_split(leaf, leaf_X, leaf_y)
                         
                         
                         
