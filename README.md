@@ -16,7 +16,10 @@
   * Nadaraya average
   * Local linear regression
   * Kernel density classification
+* Perceptron
+* Discriminant Analysis
+  * LDA, QDA, RDA
 * **Unsupervised Learning**
   * K means clustering
-* **Model Selection**
+* **Model Selection and Validation**
 
