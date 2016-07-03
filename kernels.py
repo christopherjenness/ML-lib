@@ -1,3 +1,7 @@
+"""
+Kernels which can be used by SVMs.
+"""
+
 import numpy as np
 import math
 
