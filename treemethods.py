@@ -8,7 +8,7 @@ class BaseTree(object):
     
     """
     __metaclass__ = abc.ABCMeta
-    
+
     def __init__(self):
         self.graph = nx.DiGraph()
         self.graph.add_node(1)
@@ -16,49 +16,55 @@ class BaseTree(object):
         self.X = None
         self.y = None
         self.learned = False
-    
-    def set_node(self, node_number, variable, cutoff):
-        self.graph.node[node_number]['variable'] = variable
-        self.graph.node[node_number]['cutoff'] = cutoff
-        
-    def new_nodes(self, parent, number):
-        for i in range(number):
-            self.nodes += 1
-            self.graph.add_edge(parent, self.nodes)
-        
-    def CART(self, inputs, values):
-        min_error = np.inf
-        min_feature = None
-        min_split = None
-        for feature in range(np.shape(inputs)[1]):
-            feature_vector = inputs[:, feature]
-            sorted_vector = np.unique(np.sort(feature_vector))
-            feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
-            for split in feature_splits:
-                lower_class_average = np.mean(values[feature_vector < split])
-                upper_class_average = np.mean(values[feature_vector > split])
-                lower_class_errors = values[feature_vector < split] - lower_class_average
-                upper_class_errors = values[feature_vector > split] - upper_class_average
-                total_error = np.inner(lower_class_errors, lower_class_errors) + np.inner(upper_class_errors, upper_class_errors)
-                if total_error < min_error:
-                    min_error = total_error
-                    min_feature = feature
-                    min_split = split
-        return min_feature, min_split
-        
+
+    def fit(self, X, y, height):
+        self.X = X
+        self.y = y
+        for layer in range(height):
+            self.add_layer()
+        self.compute_class_averages()
+        self.learned = True
+
+    def predict(self, x):
+        if not self.learned:
+            raise NameError('Fit model first')
+        current_node = 1
+        leaves = self.get_leaves()
+        while current_node not in leaves:
+            children = self.graph.successors(current_node)
+            current_variable = self.graph.node[current_node]['variable']
+            current_cutoff = self.graph.node[current_node]['cutoff']
+            if current_variable == None:
+                return self.graph.node[current_node]['classval']
+            if x[current_variable] > current_cutoff:
+                current_node = children[1]
+            else:
+                current_node = children[0]
+        return self.graph.node[current_node]['classval']
+
+    def add_layer(self):
+        leaves = self.get_leaves()
+        for leaf in leaves:
+            data_indices = self.partition_data(leaf)
+            leaf_X = self.X[data_indices, :]
+            leaf_y = self.y[data_indices]
+            self.add_split(leaf, leaf_X, leaf_y)
+ 
+    def get_leaves(self):
+        leaves = []
+        for node in self.graph.nodes():
+            if len(self.graph.successors(node)) == 0:
+                leaves.append(node)
+        return leaves
+
     def add_split(self, node_number, data, values):
-        min_feature, min_split = self.CART(data, values)
-        self.set_node(node_number, min_feature, min_split)
-        self.new_nodes(node_number, 2)
-        
-    def get_predecessors(self, node_number):
-        predecessors = []
-        current_node = node_number
-        while len(self.graph.predecessors(current_node)) > 0:
-            current_node = self.graph.predecessors(current_node)[0]
-            predecessors.append(current_node)
-        return predecessors
-        
+        min_feature, min_split = self.learn_split(data, values)
+        self.graph.node[node_number]['variable'] = min_feature
+        self.graph.node[node_number]['cutoff'] = min_split
+        for i in range(2):
+            self.nodes += 1
+            self.graph.add_edge(node_number, self.nodes)
+
     def partition_data(self, node_number):
         predecessors = self.get_predecessors(node_number)
         predecessors.reverse()
@@ -78,54 +84,21 @@ class BaseTree(object):
                 data_indices = data_indices[self.X[data_indices, current_variable] > current_cutoff]
             node_count +=1
         return data_indices
-        
-    def get_leaves(self):
-        leaves = []
-        for node in self.graph.nodes():
-            if len(self.graph.successors(node)) == 0:
-                leaves.append(node)
-        return leaves
-        
-    def add_layer(self):
-        leaves = self.get_leaves()
-        for leaf in leaves:
-            data_indices = self.partition_data(leaf)
-            leaf_X = self.X[data_indices, :]
-            leaf_y = self.y[data_indices]
-            self.add_split(leaf, leaf_X, leaf_y)
 
-
-    def fit(self, X, y, height):
-        self.X = X
-        self.y = y
-        for layer in range(height):
-            self.add_layer()
-        self.compute_class_averages()
-        self.learned = True
-        
-    def predict(self, x):
-        if not self.learned:
-            raise NameError('Fit model first')
-        current_node = 1
-        leaves = self.get_leaves()
-        while current_node not in leaves:
-            children = self.graph.successors(current_node)
-            current_variable = self.graph.node[current_node]['variable']
-            current_cutoff = self.graph.node[current_node]['cutoff']
-            if current_variable == None:
-                return self.graph.node[current_node]['classval']
-            if x[current_variable] > current_cutoff:
-                current_node = children[1]
-            else:
-                current_node = children[0]
-        return self.graph.node[current_node]['classval']
+    def get_predecessors(self, node_number):
+        predecessors = []
+        current_node = node_number
+        while len(self.graph.predecessors(current_node)) > 0:
+            current_node = self.graph.predecessors(current_node)[0]
+            predecessors.append(current_node)
+        return predecessors
         
     @abc.abstractmethod    
     def compute_class_averages(self):
         return
     
     @abc.abstractmethod
-    def CART(self, inputs, values):
+    def learn_split(self, inputs, values):
         return 
             
 class RegressionTree(BaseTree):
@@ -133,7 +106,7 @@ class RegressionTree(BaseTree):
     def __init__(self):
         BaseTree.__init__(self)
         
-    def CART(self, inputs, values):
+    def learn_split(self, inputs, values):
         min_error = np.inf
         min_feature = None
         min_split = None
@@ -169,7 +142,7 @@ class ClassificationTree(BaseTree):
     def __init__(self):
         BaseTree.__init__(self)
         
-    def CART(self, inputs, values):
+    def learn_split(self, inputs, values):
         """
         Uses misclassification error function.
         """
@@ -206,6 +179,81 @@ class Prim(BaseTree):
     """
     Patient Rule Induction Method
     """
+    def __init__(self):
+        BaseTree.__init__(self)
+
+    def add_split(self, node_number, data, values):
+        cutoffs = self.learn_split(data, values)
+        self.graph.node[node_number]['cutoffs'] = cutoffs
+        for i in range(2):
+            self.nodes += 1
+            self.graph.add_edge(node_number, self.nodes)
+
+        
+    def learn_split(self, inputs, values):
+        target_bin_size = len(self.y)/10
+        cutoffs = {}
+        if len(values) <= target_bin_size:
+            return cutoffs
+        best_variable = None
+        best_cutoff = [-np.inf, np.inf]
+        mean_response = np.mean(values)
+        for feature in range(np.shape(inputs)[1]):
+            feature_vector = inputs[:, feature]
+            sorted_vector = np.unique(np.sort(feature_vector))
+            feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
+            lower_split, upper_split = [int(len(feature_splits) * 0.1), int(len(feature_splits) * 0.9)]
+            boxed_data_upper = values[inputs[:, feature] > feature_splits[lower_split]]
+            boxed_data_lower = values[inputs[:, feature] < feature_splits[upper_split]]
+            max_split = max(np.mean(boxed_data_lower), np.mean(boxed_data_upper))
+            if max_split > mean_response:
+                mean_response = max_split
+                if np.mean(boxed_data_upper) > np.mean(boxed_data_lower):
+                    best_cutoff = [feature_splits[lower_split], np.inf]
+                else:
+                    best_cutoff = [-np.inf, feature_splits[upper_split]]
+                best_variable = feature
+        if best_variable == None:
+            return cutoffs
+        for i in range(np.shape(inputs)[1]):
+            cutoffs[i] = [-np.inf, np.inf]
+        cutoffs[best_variable] = best_cutoff
+        return cutoffs
+
+    def predict(self, x):
+        if not self.learned:
+            raise NameError('Fit model first')
+        current_node = 1
+        leaves = self.get_leaves()
+        while current_node not in leaves:
+            children = self.graph.successors(current_node)
+            if self.graph.node[current_node]['cutoffs'] == None:
+                return self.graph.node[current_node]['classval']
+            within_box = True
+            for key in self.graph.node[current_node]['cutoffs']:
+                current_variable = key
+                current_cutoff = self.graph.node[current_node]['cutoffs'][key]
+                if x[current_variable] < self.graph.node[current_node]['cutoffs'][key][0] or x[current_variable] > self.graph.node[current_node]['cutoffs'][key][1]:
+                    within_box = False
+            if within_box:
+                current_node = children[0]
+            else:
+                current_node = children[1]
+        return self.graph.node[current_node]['classval']
+
+    def compute_class_averages(self):
+        for i in range(2, self.nodes + 1):
+            parent = self.graph.predecessors(i)[0]
+            if self.graph.node[parent]['cutoffs'] == {}:
+                self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
+            else:
+                node_indices = self.partition_data(i)
+                if len(node_indices) == 0:
+                    self.graph.node[i]['classval'] = self.graph.node[parent]['classval'] 
+                else:
+                    classval = self.y[node_indices].mean()
+                    self.graph.node[i]['classval'] = classval
+
     def partition_data(self, node_number):
         predecessors = self.get_predecessors(node_number)
         predecessors.reverse()
@@ -244,90 +292,10 @@ class Prim(BaseTree):
             boxed_data = data_indices[(inputs[data_indices, current_variable] < current_cutoff_max) & (inputs[data_indices, current_variable] > current_cutoff_min)]
             data_indices = boxed_data
         return data_indices
-        
-        
-    def CART(self, inputs, values):
-        target_bin_size = len(self.y)/10
-        cutoffs = {}
-        if len(values) <= target_bin_size:
-            return cutoffs
-        best_variable = None
-        best_cutoff = [-np.inf, np.inf]
-        mean_response = np.mean(values)
-        for feature in range(np.shape(inputs)[1]):
-            feature_vector = inputs[:, feature]
-            sorted_vector = np.unique(np.sort(feature_vector))
-            feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
-            lower_split, upper_split = [int(len(feature_splits) * 0.1), int(len(feature_splits) * 0.9)]
-            boxed_data_upper = values[inputs[:, feature] > feature_splits[lower_split]]
-            boxed_data_lower = values[inputs[:, feature] < feature_splits[upper_split]]
-            max_split = max(np.mean(boxed_data_lower), np.mean(boxed_data_upper))
-            if max_split > mean_response:
-                mean_response = max_split
-                if np.mean(boxed_data_upper) > np.mean(boxed_data_lower):
-                    best_cutoff = [feature_splits[lower_split], np.inf]
-                else:
-                    best_cutoff = [-np.inf, feature_splits[upper_split]]
-                best_variable = feature
-        if best_variable == None:
-        for i in range(np.shape(inputs)[1]):
-            cutoffs[i] = [-np.inf, np.inf]
-        cutoffs[best_variable] = best_cutoff
-        return cutoffs
 
-                    
-            
-    def add_split(self, node_number, data, values):
-        cutoffs = self.CART(data, values)
-        self.graph.node[node_number]['cutoffs'] = cutoffs
-        self.new_nodes(node_number, 2)
-        
-    def new_nodes(self, parent, number):
-        for i in range(number):
-            self.nodes += 1
-            self.graph.add_edge(parent, self.nodes)
-            
-    def compute_class_averages(self):
-        for i in range(2, self.nodes + 1):
-            parent = self.graph.predecessors(i)[0]
-            if self.graph.node[parent]['cutoffs'] == {}:
-                self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
-            else:
-                node_indices = self.partition_data(i)
-                if len(node_indices) == 0:
-                    self.graph.node[i]['classval'] = self.graph.node[parent]['classval'] 
-                else:
-                    classval = self.y[node_indices].mean()
-                    self.graph.node[i]['classval'] = classval
                 
-    def predict(self, x):
-        if not self.learned:
-            raise NameError('Fit model first')
-        current_node = 1
-        leaves = self.get_leaves()
-        while current_node not in leaves:
-            children = self.graph.successors(current_node)
-            if self.graph.node[current_node]['cutoffs'] == None:
-                return self.graph.node[current_node]['classval']
-            within_box = True
-            for key in self.graph.node[current_node]['cutoffs']:
-                current_variable = key
-                current_cutoff = self.graph.node[current_node]['cutoffs'][key]
-                if x[current_variable] < self.graph.node[current_node]['cutoffs'][key][0] or x[current_variable] > self.graph.node[current_node]['cutoffs'][key][1]:
-                    within_box = False
-            if within_box:
-                current_node = children[0]
-            else:
-                current_node = children[1]
-        return self.graph.node[current_node]['classval']
-        
-    def add_layer(self):
-        leaves = self.get_leaves()
-        for leaf in leaves:
-            data_indices = self.partition_data(leaf)
-            leaf_X = self.X[data_indices, :]
-            leaf_y = self.y[data_indices]
-            self.add_split(leaf, leaf_X, leaf_y)
+
+
                         
                         
                         
