@@ -1,10 +1,9 @@
 """
 Tree based methods of learning (classification and regression)
 """
-
+import abc
 import numpy as np
 import networkx as nx
-import abc
 from scipy.stats import mode
 
 class BaseTree(object):
@@ -58,7 +57,7 @@ class BaseTree(object):
 
         Raises:
             ValueError if model has not been fit
-            
+
         Notes:
             Currently, only a single data instance can be predicted at a time.
         """
@@ -70,7 +69,7 @@ class BaseTree(object):
             children = self.graph.successors(current_node)
             current_variable = self.graph.node[current_node]['variable']
             current_cutoff = self.graph.node[current_node]['cutoff']
-            if current_variable == None:
+            if current_variable is None:
                 return self.graph.node[current_node]['classval']
             if x[current_variable] > current_cutoff:
                 current_node = children[1]
@@ -88,7 +87,7 @@ class BaseTree(object):
             leaf_X = self.X[data_indices, :]
             leaf_y = self.y[data_indices]
             self.add_split(leaf, leaf_X, leaf_y)
- 
+
     def get_leaves(self):
         """
         Used by add_layer() to get the leaves of the tree.
@@ -119,14 +118,14 @@ class BaseTree(object):
 
     def partition_data(self, node_number):
         """
-        Partitions the training data at a given node.  Traverses the 
+        Partitions the training data at a given node.  Traverses the
         entire down to the indicated node.
 
         Args:
             node_number (int): Node in tree to partition data down to
 
-        Returns: 
-            data_indices (np.array): Array of indices from training data which 
+        Returns:
+            data_indices (np.array): Array of indices from training data which
                 partition to node
         """
         predecessors = self.get_predecessors(node_number)
@@ -139,13 +138,13 @@ class BaseTree(object):
             next_node = predecessors[node_count + 1]
             current_variable = self.graph.node[current_node]['variable']
             current_cutoff = self.graph.node[current_node]['cutoff']
-            if current_cutoff == None:
+            if current_cutoff is None:
                 return []
             if next_node == min(self.graph.successors(current_node)):
                 data_indices = data_indices[self.X[data_indices, current_variable] < current_cutoff]
             else:
                 data_indices = data_indices[self.X[data_indices, current_variable] > current_cutoff]
-            node_count +=1
+            node_count += 1
         return data_indices
 
     def get_predecessors(self, node_number):
@@ -158,37 +157,40 @@ class BaseTree(object):
             current_node = self.graph.predecessors(current_node)[0]
             predecessors.append(current_node)
         return predecessors
-        
-    @abc.abstractmethod    
+
+    @abc.abstractmethod
     def compute_class_averages(self):
         """
         Method to compute average value for all nodes in the tree
         """
         return
-    
+
     @abc.abstractmethod
     def learn_split(self, inputs, values):
         """
         Method to learn split given a data set (inputs) with target values (values)
         """
-        return 
-            
+        return
+
 class RegressionTree(BaseTree):
-    
+    """
+    Regression Tree implimenting CART algorithm
+    """
+
     def __init__(self):
         BaseTree.__init__(self)
-        
-    def learn_split(self, data, values):
+
+    def learn_split(self, inputs, values):
         """
         CART algorithm to learn split at node in tree.
         Minimizes mean squared error of the two classes generated.
-        
+
         Args:
             data (np.ndarray): data of shape[n_samples, n_features]
                 Data which node split will be based off of
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
-                
+
         Returns:
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
@@ -212,7 +214,7 @@ class RegressionTree(BaseTree):
                     min_feature = feature
                     min_split = split
         return min_feature, min_split
-        
+
     def compute_class_averages(self):
         """
         Computes the class average of each node in the tree.
@@ -220,30 +222,32 @@ class RegressionTree(BaseTree):
         """
         for i in range(2, self.nodes + 1):
             parent = self.graph.predecessors(i)[0]
-            if self.graph.node[parent]['cutoff'] == None:
+            if self.graph.node[parent]['cutoff'] is None:
                 self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
             else:
                 node_indices = self.partition_data(i)
                 classval = self.y[node_indices].mean()
                 self.graph.node[i]['classval'] = classval
-    
-        
+
 class ClassificationTree(BaseTree):
-    
+    """
+    Classification Tree implimenting CART algorithm
+    """
+
     def __init__(self):
         BaseTree.__init__(self)
-        
+
     def learn_split(self, inputs, values):
         """
         CART algorithm to learn split at node in tree.
         Minimizes total misclassification error.
-        
+
         Args:
             data (np.ndarray): data of shape[n_samples, n_features]
                 Data which node split will be based off of
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
-                
+
         Returns:
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
@@ -275,12 +279,12 @@ class ClassificationTree(BaseTree):
         """
         for i in range(2, self.nodes + 1):
             parent = self.graph.predecessors(i)[0]
-            if self.graph.node[parent]['cutoff'] == None:
+            if self.graph.node[parent]['cutoff'] is None:
                 self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
             else:
                 node_indices = self.partition_data(i)
                 classval = mode(self.y[node_indices]).mode[0]
-                self.graph.node[i]['classval'] = classval   
+                self.graph.node[i]['classval'] = classval
 
 class PrimRegression(BaseTree):
     """
@@ -316,13 +320,13 @@ class PrimRegression(BaseTree):
         """
         PRIM algorithm to learn split at node in tree.
         Maximizes response mean after "boxing off" 90% of data.
-        
+
         Args:
             data (np.ndarray): data of shape[n_samples, n_features]
                 Data which node split will be based off of
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
-                
+
         Returns:
             cutoffs (dict): Dictionary of cutoffs to use
             {variable: [min_cutoff, max_cutoff]}
@@ -354,7 +358,7 @@ class PrimRegression(BaseTree):
                 else:
                     best_cutoff = [-np.inf, feature_splits[upper_split]]
                 best_variable = feature
-        if best_variable == None:
+        if best_variable is None:
             return cutoffs
         for i in range(np.shape(inputs)[1]):
             cutoffs[i] = [-np.inf, np.inf]
@@ -371,7 +375,7 @@ class PrimRegression(BaseTree):
 
         Raises:
             ValueError if model has not been fit
-            
+
         Notes:
             Currently, only a single data instance can be predicted at a time.
         """
@@ -381,13 +385,13 @@ class PrimRegression(BaseTree):
         leaves = self.get_leaves()
         while current_node not in leaves:
             children = self.graph.successors(current_node)
-            if self.graph.node[current_node]['cutoffs'] == None:
+            if self.graph.node[current_node]['cutoffs'] is None:
                 return self.graph.node[current_node]['classval']
             within_box = True
             for key in self.graph.node[current_node]['cutoffs']:
                 current_variable = key
                 current_cutoff = self.graph.node[current_node]['cutoffs'][key]
-                if x[current_variable] < self.graph.node[current_node]['cutoffs'][key][0] or x[current_variable] > self.graph.node[current_node]['cutoffs'][key][1]:
+                if x[current_variable] < current_cutoff[0] or x[current_variable] > current_cutoff[1]:
                     within_box = False
             if within_box:
                 current_node = children[0]
@@ -407,21 +411,21 @@ class PrimRegression(BaseTree):
             else:
                 node_indices = self.partition_data(i)
                 if len(node_indices) == 0:
-                    self.graph.node[i]['classval'] = self.graph.node[parent]['classval'] 
+                    self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
                 else:
                     classval = self.y[node_indices].mean()
                     self.graph.node[i]['classval'] = classval
 
     def partition_data(self, node_number):
         """
-        Partitions the training data at a given node.  Traverses the 
+        Partitions the training data at a given node.  Traverses the
         entire down to the indicated node.
 
         Args:
             node_number (int): Node in tree to partition data down to
 
-        Returns: 
-            data_indices (np.array): Array of indices from training data which 
+        Returns:
+            data_indices (np.array): Array of indices from training data which
                 partition to node
         """
         predecessors = self.get_predecessors(node_number)
@@ -435,28 +439,28 @@ class PrimRegression(BaseTree):
             current_node = predecessors[node_count]
             next_node = predecessors[node_count + 1]
             cutoff_dict = self.graph.node[current_node]['cutoffs']
-            if cutoff_dict == None:
+            if cutoff_dict is None:
                 return None
             in_box = self.partition_data_nodeless(temp_data, cutoff_dict)
-            if in_box == None:
+            if in_box is None:
                 return None
             if next_node == min(self.graph.successors(current_node)):
                 data_indices = data_indices[in_box]
             else:
                 data_indices = np.delete(data_indices, in_box)
-            node_count +=1
-            if len(data_indices)==0:
+            node_count += 1
+            if len(data_indices) == 0:
                 return []
         return data_indices
-    
-    @staticmethod    
+
+    @staticmethod
     def partition_data_nodeless(inputs, cutoff_dict):
         """
         Partitions inputs based off of a cutoff dictionary which can contain
         cutoffs for many varialbes (although this feature is currently unused)
         """
         data_indices = np.array(range(np.shape(inputs)[0]))
-        if cutoff_dict == None:
+        if cutoff_dict is None:
             return None
         for key in cutoff_dict:
             current_variable = key
