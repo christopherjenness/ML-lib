@@ -16,7 +16,7 @@ class LinearRegression:
     def predict(self, X):
         """
         Args:
-            X (np.ndarray): Training data of shape[n_samples, n_features]
+            X (np.ndarray): Test data of shape[n_samples, n_features]
 
         Returns:
             prediction (np.ndarray): shape[n_samples, 1]
@@ -55,6 +55,7 @@ class LinearRegression:
             y (np.ndarray): Target values of shape[n_samples, 1]
             gradient (bool): Optional use of gradient descent to calculate weights
                 if False, uses closed form solution to calculate weights.
+            learned (bool): Keeps track of if model has been fit
 
         Returns:
             self: Returns an instance of self
