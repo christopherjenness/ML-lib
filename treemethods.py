@@ -1,3 +1,7 @@
+"""
+Tree based methods of learning (classification and regression)
+"""
+
 import numpy as np
 import networkx as nx
 import abc
@@ -5,11 +9,21 @@ from scipy.stats import mode
 
 class BaseTree(object):
     """
-    
+    Base Tree for classification/regression.  Written for single variable/value
+    binary split critereon.  Many methods needs to be rewritten if a more complex
+    split critereon is desired.
     """
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
+        """
+        Attributes:
+            graph (nx.DiGraph): Directed graph which stores tree
+            nodes (int): Current number of nodes in tree
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.ndarray): Target values of shape[n_samples, 1]
+            learned (bool): Keeps track of if model has been fit
+        """
         self.graph = nx.DiGraph()
         self.graph.add_node(1)
         self.nodes = 1
@@ -18,14 +32,36 @@ class BaseTree(object):
         self.learned = False
 
     def fit(self, X, y, height):
+        """
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.ndarray): Target values of shape[n_samples, 1]
+            height (int): height of tree
+
+        Returns: an instance of self
+        """
         self.X = X
         self.y = y
-        for layer in range(height):
+        for layer in range(height - 1):
             self.add_layer()
         self.compute_class_averages()
         self.learned = True
+        return self
 
     def predict(self, x):
+        """
+        Args:
+            x (np.array): Training data of shape[n_features,]
+
+        Returns:
+            prediction (float): predicted value
+
+        Raises:
+            ValueError if model has not been fit
+            
+        Notes:
+            Currently, only a single data instance can be predicted at a time.
+        """
         if not self.learned:
             raise NameError('Fit model first')
         current_node = 1
@@ -43,6 +79,9 @@ class BaseTree(object):
         return self.graph.node[current_node]['classval']
 
     def add_layer(self):
+        """
+        Used by Fit() to add a single layer at the bottom of the tree
+        """
         leaves = self.get_leaves()
         for leaf in leaves:
             data_indices = self.partition_data(leaf)
@@ -51,6 +90,9 @@ class BaseTree(object):
             self.add_split(leaf, leaf_X, leaf_y)
  
     def get_leaves(self):
+        """
+        Used by add_layer() to get the leaves of the tree.
+        """
         leaves = []
         for node in self.graph.nodes():
             if len(self.graph.successors(node)) == 0:
@@ -58,6 +100,16 @@ class BaseTree(object):
         return leaves
 
     def add_split(self, node_number, data, values):
+        """
+        Used by add_layer() to add two children at a leaf in the tree
+
+        Args:
+            node_number (int): Node in tree which a new split is added to
+            data (np.ndarray): data of shape[n_samples, n_features]
+                Data which node split will be based off of
+            values (np.array): values of shape[n_samples,]
+                Target values which node split will be based off of
+        """
         min_feature, min_split = self.learn_split(data, values)
         self.graph.node[node_number]['variable'] = min_feature
         self.graph.node[node_number]['cutoff'] = min_split
@@ -66,6 +118,17 @@ class BaseTree(object):
             self.graph.add_edge(node_number, self.nodes)
 
     def partition_data(self, node_number):
+        """
+        Partitions the training data at a given node.  Traverses the 
+        entire down to the indicated node.
+
+        Args:
+            node_number (int): Node in tree to partition data down to
+
+        Returns: 
+            data_indices (np.array): Array of indices from training data which 
+                partition to node
+        """
         predecessors = self.get_predecessors(node_number)
         predecessors.reverse()
         predecessors.append(node_number)
@@ -86,6 +149,9 @@ class BaseTree(object):
         return data_indices
 
     def get_predecessors(self, node_number):
+        """
+        Used by parition_data() to get predecessors of a given node (to walk down the tree)
+        """
         predecessors = []
         current_node = node_number
         while len(self.graph.predecessors(current_node)) > 0:
@@ -95,10 +161,16 @@ class BaseTree(object):
         
     @abc.abstractmethod    
     def compute_class_averages(self):
+        """
+        Method to compute average value for all nodes in the tree
+        """
         return
     
     @abc.abstractmethod
     def learn_split(self, inputs, values):
+        """
+        Method to learn split given a data set (inputs) with target values (values)
+        """
         return 
             
 class RegressionTree(BaseTree):
@@ -106,7 +178,22 @@ class RegressionTree(BaseTree):
     def __init__(self):
         BaseTree.__init__(self)
         
-    def learn_split(self, inputs, values):
+    def learn_split(self, data, values):
+        """
+        CART algorithm to learn split at node in tree.
+        Minimizes mean squared error of the two classes generated.
+        
+        Args:
+            data (np.ndarray): data of shape[n_samples, n_features]
+                Data which node split will be based off of
+            values (np.array): values of shape[n_samples,]
+                Target values which node split will be based off of
+                
+        Returns:
+            min_split (float): feature value at which to split
+            min_feature (int): feature number to split data by
+                Essentially, the column number from the data which split is performed on
+        """
         min_error = np.inf
         min_feature = None
         min_split = None
@@ -127,6 +214,10 @@ class RegressionTree(BaseTree):
         return min_feature, min_split
         
     def compute_class_averages(self):
+        """
+        Computes the class average of each node in the tree.
+        Class average is mean of training data that partitions to the node.
+        """
         for i in range(2, self.nodes + 1):
             parent = self.graph.predecessors(i)[0]
             if self.graph.node[parent]['cutoff'] == None:
@@ -144,7 +235,19 @@ class ClassificationTree(BaseTree):
         
     def learn_split(self, inputs, values):
         """
-        Uses misclassification error function.
+        CART algorithm to learn split at node in tree.
+        Minimizes total misclassification error.
+        
+        Args:
+            data (np.ndarray): data of shape[n_samples, n_features]
+                Data which node split will be based off of
+            values (np.array): values of shape[n_samples,]
+                Target values which node split will be based off of
+                
+        Returns:
+            min_split (float): feature value at which to split
+            min_feature (int): feature number to split data by
+                Essentially, the column number from the data which split is performed on
         """
         min_error = np.inf
         min_feature = None
@@ -164,8 +267,12 @@ class ClassificationTree(BaseTree):
                     min_feature = feature
                     min_split = split
         return min_feature, min_split
-        
+
     def compute_class_averages(self):
+        """
+        Computes the class average of each node in the tree.
+        Class average is the mode of training data that partitions to the node.
+        """
         for i in range(2, self.nodes + 1):
             parent = self.graph.predecessors(i)[0]
             if self.graph.node[parent]['cutoff'] == None:
@@ -174,23 +281,57 @@ class ClassificationTree(BaseTree):
                 node_indices = self.partition_data(i)
                 classval = mode(self.y[node_indices]).mode[0]
                 self.graph.node[i]['classval'] = classval   
-                
-class Prim(BaseTree):
+
+class PrimRegression(BaseTree):
     """
-    Patient Rule Induction Method
+    PRIM: Patient Rule Induction Method
+    Decision at node peels of 10% of data which  maximizes response mean
+    More "patient" than CART algorithm.
+
+    NOTE:
+        Since decision is a "box", many methods in BaseTree class are overwritten
+        In the futute, BaseTree can be reworked to accomodate more flexible decisions
     """
     def __init__(self):
         BaseTree.__init__(self)
 
     def add_split(self, node_number, data, values):
+        """
+        Used by add_layer() to add two children at a leaf in the tree
+
+        Args:
+            node_number (int): Node in tree which a new split is added to
+            data (np.ndarray): data of shape[n_samples, n_features]
+                Data which node split will be based off of
+            values (np.array): values of shape[n_samples,]
+                Target values which node split will be based off of
+        """
         cutoffs = self.learn_split(data, values)
         self.graph.node[node_number]['cutoffs'] = cutoffs
         for i in range(2):
             self.nodes += 1
             self.graph.add_edge(node_number, self.nodes)
 
-        
     def learn_split(self, inputs, values):
+        """
+        PRIM algorithm to learn split at node in tree.
+        Maximizes response mean after "boxing off" 90% of data.
+        
+        Args:
+            data (np.ndarray): data of shape[n_samples, n_features]
+                Data which node split will be based off of
+            values (np.array): values of shape[n_samples,]
+                Target values which node split will be based off of
+                
+        Returns:
+            cutoffs (dict): Dictionary of cutoffs to use
+            {variable: [min_cutoff, max_cutoff]}
+            Example: {3, [-12.5, 10]} means samples boxed between 12.5 and 10
+                on variable 3 are in the box.
+            Note: in an early implimentation, this dictiory could contain
+                single values.  Currently, it only ever contains a single
+                value.  This can be simplified in the future.
+        """
         target_bin_size = len(self.y)/10
         cutoffs = {}
         if len(values) <= target_bin_size:
@@ -221,6 +362,19 @@ class Prim(BaseTree):
         return cutoffs
 
     def predict(self, x):
+        """
+        Args:
+            x (np.array): Training data of shape[n_features,]
+
+        Returns:
+            prediction (float): predicted value
+
+        Raises:
+            ValueError if model has not been fit
+            
+        Notes:
+            Currently, only a single data instance can be predicted at a time.
+        """
         if not self.learned:
             raise NameError('Fit model first')
         current_node = 1
@@ -242,6 +396,10 @@ class Prim(BaseTree):
         return self.graph.node[current_node]['classval']
 
     def compute_class_averages(self):
+        """
+        Computes the class average of each node in the tree.
+        Class average is the mean of training data that partitions to the node.
+        """
         for i in range(2, self.nodes + 1):
             parent = self.graph.predecessors(i)[0]
             if self.graph.node[parent]['cutoffs'] == {}:
@@ -255,6 +413,17 @@ class Prim(BaseTree):
                     self.graph.node[i]['classval'] = classval
 
     def partition_data(self, node_number):
+        """
+        Partitions the training data at a given node.  Traverses the 
+        entire down to the indicated node.
+
+        Args:
+            node_number (int): Node in tree to partition data down to
+
+        Returns: 
+            data_indices (np.array): Array of indices from training data which 
+                partition to node
+        """
         predecessors = self.get_predecessors(node_number)
         predecessors.reverse()
         predecessors.append(node_number)
@@ -282,6 +451,10 @@ class Prim(BaseTree):
     
     @staticmethod    
     def partition_data_nodeless(inputs, cutoff_dict):
+        """
+        Partitions inputs based off of a cutoff dictionary which can contain
+        cutoffs for many varialbes (although this feature is currently unused)
+        """
         data_indices = np.array(range(np.shape(inputs)[0]))
         if cutoff_dict == None:
             return None
@@ -293,16 +466,4 @@ class Prim(BaseTree):
             data_indices = boxed_data
         return data_indices
 
-                
-
-
-                        
-                        
-                        
-                        
-
-    
-    
-    
-    
     
