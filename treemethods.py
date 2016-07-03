@@ -247,7 +247,7 @@ class Prim(BaseTree):
         
         
     def CART(self, inputs, values):
-        target_bin_size = 100
+        target_bin_size = len(self.y)/10
         cutoffs = {}
         if len(values) <= target_bin_size:
             return cutoffs
@@ -258,16 +258,18 @@ class Prim(BaseTree):
             feature_vector = inputs[:, feature]
             sorted_vector = np.unique(np.sort(feature_vector))
             feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
-            split = int(len(feature_splits) * 0.1)
-            boxed_data = values[inputs[:, feature] > feature_splits[split]]
-            if np.mean(boxed_data) > mean_response:
-                mean_response = np.mean(boxed_data)
-                best_cutoff = [feature_splits[split], np.inf]
+            lower_split, upper_split = [int(len(feature_splits) * 0.1), int(len(feature_splits) * 0.9)]
+            boxed_data_upper = values[inputs[:, feature] > feature_splits[lower_split]]
+            boxed_data_lower = values[inputs[:, feature] < feature_splits[upper_split]]
+            max_split = max(np.mean(boxed_data_lower), np.mean(boxed_data_upper))
+            if max_split > mean_response:
+                mean_response = max_split
+                if np.mean(boxed_data_upper) > np.mean(boxed_data_lower):
+                    best_cutoff = [feature_splits[lower_split], np.inf]
+                else:
+                    best_cutoff = [-np.inf, feature_splits[upper_split]]
                 best_variable = feature
         if best_variable == None:
-            print("realy exit", len(values))
-            print (cutoffs)
-            return cutoffs
         for i in range(np.shape(inputs)[1]):
             cutoffs[i] = [-np.inf, np.inf]
         cutoffs[best_variable] = best_cutoff
@@ -322,7 +324,6 @@ class Prim(BaseTree):
     def add_layer(self):
         leaves = self.get_leaves()
         for leaf in leaves:
-            print(leaf)
             data_indices = self.partition_data(leaf)
             leaf_X = self.X[data_indices, :]
             leaf_y = self.y[data_indices]
