@@ -224,9 +224,9 @@ class Prim(BaseTree):
             if in_box == None:
                 return None
             if next_node == min(self.graph.successors(current_node)):
-                data_indices = np.intersect1d(data_indices, in_box)
+                data_indices = data_indices[in_box]
             else:
-                data_indices = np.intersect1d(data_indices, np.delete(data_indices, in_box))
+                data_indices = np.delete(data_indices, in_box)
             node_count +=1
             if len(data_indices)==0:
                 return []
@@ -247,49 +247,38 @@ class Prim(BaseTree):
         
         
     def CART(self, inputs, values):
-        inputs = inputs
-        values = values
-        target_bin_size = 10
+        target_bin_size = 100
         cutoffs = {}
-        if len(values) <= 2* target_bin_size - 1:
+        if len(values) <= target_bin_size:
+            return cutoffs
+        best_variable = None
+        best_cutoff = [-np.inf, np.inf]
+        mean_response = np.mean(values)
+        for feature in range(np.shape(inputs)[1]):
+            feature_vector = inputs[:, feature]
+            sorted_vector = np.unique(np.sort(feature_vector))
+            feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
+            split = int(len(feature_splits) * 0.1)
+            boxed_data = values[inputs[:, feature] > feature_splits[split]]
+            if np.mean(boxed_data) > mean_response:
+                mean_response = np.mean(boxed_data)
+                best_cutoff = [feature_splits[split], np.inf]
+                best_variable = feature
+        if best_variable == None:
+            print("realy exit", len(values))
+            print (cutoffs)
             return cutoffs
         for i in range(np.shape(inputs)[1]):
             cutoffs[i] = [-np.inf, np.inf]
-        print (len(values))
-        while len(values) > target_bin_size:
-            best_variable = None
-            best_cutoff = [-np.inf, np.inf]
-            mean_response = -np.inf
-            for feature in range(np.shape(inputs)[1]):
-                feature_vector = inputs[:, feature]
-                sorted_vector = np.unique(np.sort(feature_vector))
-                feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
-                split = int(len(feature_splits) * 0.05)
-                print('asdf', split)
-                boxed_data = values[inputs[:, feature] > feature_splits[split]]
-                print(np.mean(boxed_data))
-                if np.mean(boxed_data) > mean_response:
-                    mean_response = np.mean(boxed_data)
-                    best_cutoff = [feature_splits[split], np.inf]
-                    best_variable = feature
-            if best_variable == None:
-                return cutoffs
-            cutoffs[best_variable] = best_cutoff
-            indices = self.partition_data_nodeless(inputs, cutoffs)
-            inputs = inputs[indices, :]
-            values = values[indices]
-            print(len(values))
+        cutoffs[best_variable] = best_cutoff
         return cutoffs
 
                     
             
     def add_split(self, node_number, data, values):
         cutoffs = self.CART(data, values)
-        self.set_node(node_number, cutoffs)
-        self.new_nodes(node_number, 2)
-                        
-    def set_node(self, node_number, cutoffs):
         self.graph.node[node_number]['cutoffs'] = cutoffs
+        self.new_nodes(node_number, 2)
         
     def new_nodes(self, parent, number):
         for i in range(number):
@@ -299,12 +288,15 @@ class Prim(BaseTree):
     def compute_class_averages(self):
         for i in range(2, self.nodes + 1):
             parent = self.graph.predecessors(i)[0]
-            if self.graph.node[parent]['cutoffs'] == None:
+            if self.graph.node[parent]['cutoffs'] == {}:
                 self.graph.node[i]['classval'] = self.graph.node[parent]['classval']
             else:
                 node_indices = self.partition_data(i)
-                classval = self.y[node_indices].mean()
-                self.graph.node[i]['classval'] = classval
+                if len(node_indices) == 0:
+                    self.graph.node[i]['classval'] = self.graph.node[parent]['classval'] 
+                else:
+                    classval = self.y[node_indices].mean()
+                    self.graph.node[i]['classval'] = classval
                 
     def predict(self, x):
         if not self.learned:
@@ -330,6 +322,7 @@ class Prim(BaseTree):
     def add_layer(self):
         leaves = self.get_leaves()
         for leaf in leaves:
+            print(leaf)
             data_indices = self.partition_data(leaf)
             leaf_X = self.X[data_indices, :]
             leaf_y = self.y[data_indices]
