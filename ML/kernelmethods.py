@@ -133,7 +133,7 @@ class KernelMethods(object):
 
     def kerneldensitypredict(self, x, gamma):
         """
-        Naive bayes calssification prediction based on KDE of each class
+        Kernel density calssification prediction based on KDE of each class
 
         x (np.array): Test data of shape [n_features]
         gamma: gaussian width from which to sample in KDE
