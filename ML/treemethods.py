@@ -200,7 +200,7 @@ class RegressionTree(BaseTree):
                 Essentially, the column number from the data which split is performed on
         """
         if self.weights == None:
-            weights == np.ones(len(values))
+            weights = np.ones(len(values))
         else:
             weights = np.array(self.weights)
         min_error = np.inf
@@ -261,7 +261,7 @@ class ClassificationTree(BaseTree):
                 Essentially, the column number from the data which split is performed on
         """
         if self.weights == None:
-            weights == np.ones(len(values))
+            weights = np.ones(len(values))
         else:
             weights = np.array(self.weights)
         min_error = np.inf
@@ -274,8 +274,8 @@ class ClassificationTree(BaseTree):
             for split in feature_splits:
                 lower_class_mode = mode(values[feature_vector < split]).mode[0]
                 upper_class_mode = mode(values[feature_vector > split]).mode[0]
-                lower_class_errors = (np.sum(values[feature_vector < split] != lower_class_mode)) * weights
-                upper_class_errors = (np.sum(values[feature_vector > split] != upper_class_mode)) * weights
+                lower_class_errors = (np.sum(values[feature_vector < split] != lower_class_mode) * weights)
+                upper_class_errors = (np.sum(values[feature_vector > split] != upper_class_mode) * weights)
                 total_error = upper_class_errors + lower_class_errors
                 if total_error < min_error:
                     min_error = total_error
@@ -492,7 +492,8 @@ class DiscreteAdaBoost(object):
         self.stumps = []
         self.X = None
         self.y = None
-        self.weights = None
+        self.weights = []
+        self.alphas = []
         self.learned = False
         
     def fit(self, X, y, n_stumps=100):
@@ -507,16 +508,20 @@ class DiscreteAdaBoost(object):
         self.X = X
         self.y = y
         n_samples = len(self.y)
-        self.weights = np.ones(n_samples) / n_samples
+
         while self.stump_count < n_stumps:
-            self.add_stump()
+            if len(self.weights) == 0:
+                current_weights = np.ones(n_samples) / len(samples)
+            else:
+                current_weights = self.weights[-1]
+            self.add_stump(current_weights)
             self.stump_count += 1
         self.learned = True
         return self
         
-    def add_stump():
-        stump = RegressionTree()
-        stump.fit(self.X, self.y, se
+    def add_stump(weights):
+        stump = ClassificationTree()
+        stump.fit(self.X, self.y, height = 1, weights = weights)
         return self
         
         
