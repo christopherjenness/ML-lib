@@ -213,8 +213,8 @@ class RegressionTree(BaseTree):
             for split in feature_splits:
                 lower_class_average = np.mean(values[feature_vector < split])
                 upper_class_average = np.mean(values[feature_vector > split])
-                lower_class_errors = (values[feature_vector < split] - lower_class_average) * weights
-                upper_class_errors = (values[feature_vector > split] - upper_class_average) * weights
+                lower_class_errors = (values[feature_vector < split] - lower_class_average) * weights[feature_vector < split]
+                upper_class_errors = (values[feature_vector > split] - upper_class_average) * weights[feature_vector > split]
                 total_error = np.inner(lower_class_errors, lower_class_errors) + np.inner(upper_class_errors, upper_class_errors)
                 if total_error < min_error:
                     min_error = total_error
@@ -274,8 +274,8 @@ class ClassificationTree(BaseTree):
             for split in feature_splits:
                 lower_class_mode = mode(values[feature_vector < split]).mode[0]
                 upper_class_mode = mode(values[feature_vector > split]).mode[0]
-                lower_class_errors = (np.sum(values[feature_vector < split] != lower_class_mode) * weights)
-                upper_class_errors = (np.sum(values[feature_vector > split] != upper_class_mode) * weights)
+                lower_class_errors = np.sum((values[feature_vector < split] != lower_class_mode).astype(int) * weights[feature_vector < split])
+                upper_class_errors = np.sum((values[feature_vector > split] != upper_class_mode).astype(int) * weights[feature_vector > split])
                 total_error = upper_class_errors + lower_class_errors
                 if total_error < min_error:
                     min_error = total_error
@@ -511,7 +511,7 @@ class DiscreteAdaBoost(object):
 
         while self.stump_count < n_stumps:
             if len(self.weights) == 0:
-                current_weights = np.ones(n_samples) / len(samples)
+                current_weights = np.ones(n_samples) / n_samples
             else:
                 current_weights = self.weights[-1]
             self.add_stump(current_weights)
@@ -519,10 +519,30 @@ class DiscreteAdaBoost(object):
         self.learned = True
         return self
         
-    def add_stump(weights):
+    def add_stump(self, weights):
         stump = ClassificationTree()
         stump.fit(self.X, self.y, height = 1, weights = weights)
+        predictions = []
+        for row in self.X:
+            prediction = stump.predict(row)
+            predictions.append(prediction)
+        current_misclassifications = (predictions != self.y).astype(int)
+        current_error = np.sum(current_misclassifications * weights) / np.sum(weights)
+        current_alpha = np.log((1-current_error) / current_error)
+        current_weights = weights * np.exp(current_alpha * current_misclassifications)
+        self.weights.append(current_weights)
+        self.alphas.append(current_alpha)
+        self.stumps.append(stump)
         return self
+        
+    def predict(self, x):
+        stump_predictions = []
+        for i in range(self.stump_count):
+            stump_prediction = self.stumps[i].predict(x)
+            stump_predictions.append(stump_prediction)
+        predictions = np.array(stump_predictions)
+        prediction = np.sign(np.sum(predictions * self.alphas))
+        return prediction
         
         
         
