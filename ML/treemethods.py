@@ -41,7 +41,7 @@ class BaseTree(object):
         """
         self.X = X
         self.y = y
-        for layer in range(height - 1):
+        for layer in range(height):
             self.add_layer()
         self.compute_class_averages()
         self.learned = True
@@ -469,5 +469,46 @@ class PrimRegression(BaseTree):
             boxed_data = data_indices[(inputs[data_indices, current_variable] < current_cutoff_max) & (inputs[data_indices, current_variable] > current_cutoff_min)]
             data_indices = boxed_data
         return data_indices
+        
+class DiscreteAdaBoost(object):
+    """
+    Ada Boost classifier.
+    This implimentation produces a series of decisions stumps (decision trees with 
+    two terminal nodes).
+    """
+    def __init__(self):
+        self.stumps = 0
+        self.X = None
+        self.y = None
+        self.weights = None
+        self.learned = False
+        
+    def fit(self, X, y, n_stumps=100):
+        """
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.ndarray): Target values of shape[n_samples, 1]
+            n_stumps (int): number of stumps in classifier 
+
+        Returns: an instance of self
+        """
+        self.X = X
+        self.y = y
+        while self.stumps < n_stumps:
+            self.add_stump()
+            self.stumps += 1)
+        self.learned = True
+        return self
+        
+    def add_stump():
+        return self
+        
+        
+        
+        
+        
+        
+        
+        
 
     
