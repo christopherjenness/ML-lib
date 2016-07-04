@@ -180,7 +180,7 @@ class RegressionTree(BaseTree):
     def __init__(self):
         BaseTree.__init__(self)
 
-    def learn_split(self, inputs, values):
+    def learn_split(self, inputs, values, weights=None):
         """
         CART algorithm to learn split at node in tree.
         Minimizes mean squared error of the two classes generated.
@@ -190,12 +190,18 @@ class RegressionTree(BaseTree):
                 Data which node split will be based off of
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
+            weights (np.array): array of sample weights
+                if None, all samples are weighted evenly
 
         Returns:
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
         """
+        if weights == None:
+            weights == np.ones(len(values))
+        else:
+            weights = np.array(weights)
         min_error = np.inf
         min_feature = None
         min_split = None
@@ -206,8 +212,8 @@ class RegressionTree(BaseTree):
             for split in feature_splits:
                 lower_class_average = np.mean(values[feature_vector < split])
                 upper_class_average = np.mean(values[feature_vector > split])
-                lower_class_errors = values[feature_vector < split] - lower_class_average
-                upper_class_errors = values[feature_vector > split] - upper_class_average
+                lower_class_errors = (values[feature_vector < split] - lower_class_average) * weights
+                upper_class_errors = (values[feature_vector > split] - upper_class_average) * weights
                 total_error = np.inner(lower_class_errors, lower_class_errors) + np.inner(upper_class_errors, upper_class_errors)
                 if total_error < min_error:
                     min_error = total_error
@@ -477,7 +483,8 @@ class DiscreteAdaBoost(object):
     two terminal nodes).
     """
     def __init__(self):
-        self.stumps = 0
+        self.stump_count = 0
+        self.stumps = []
         self.X = None
         self.y = None
         self.weights = None
@@ -487,20 +494,23 @@ class DiscreteAdaBoost(object):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
-            y (np.ndarray): Target values of shape[n_samples, 1]
+            y (np.array): Target values of shape[n_samples]
             n_stumps (int): number of stumps in classifier 
 
         Returns: an instance of self
         """
         self.X = X
         self.y = y
-        while self.stumps < n_stumps:
+        n_samples = len(self.y)
+        self.weights = np.ones(n_samples) / n_samples
+        while self.stump_count < n_stumps:
             self.add_stump()
-            self.stumps += 1)
+            self.stump_count += 1
         self.learned = True
         return self
         
     def add_stump():
+        
         return self
         
         
