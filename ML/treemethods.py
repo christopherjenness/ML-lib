@@ -30,17 +30,20 @@ class BaseTree(object):
         self.y = None
         self.learned = False
 
-    def fit(self, X, y, height):
+    def fit(self, X, y, height, weights=None):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1]
             height (int): height of tree
+            weights (np.array): array of sample weights
+                if None, all samples are weighted evenly
 
         Returns: an instance of self
         """
         self.X = X
         self.y = y
+        self.weights = weights
         for layer in range(height):
             self.add_layer()
         self.compute_class_averages()
@@ -180,7 +183,7 @@ class RegressionTree(BaseTree):
     def __init__(self):
         BaseTree.__init__(self)
 
-    def learn_split(self, inputs, values, weights=None):
+    def learn_split(self, inputs, values):
         """
         CART algorithm to learn split at node in tree.
         Minimizes mean squared error of the two classes generated.
@@ -190,18 +193,16 @@ class RegressionTree(BaseTree):
                 Data which node split will be based off of
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
-            weights (np.array): array of sample weights
-                if None, all samples are weighted evenly
 
         Returns:
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
         """
-        if weights == None:
+        if self.weights == None:
             weights == np.ones(len(values))
         else:
-            weights = np.array(weights)
+            weights = np.array(self.weights)
         min_error = np.inf
         min_feature = None
         min_split = None
@@ -259,6 +260,10 @@ class ClassificationTree(BaseTree):
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
         """
+        if self.weights == None:
+            weights == np.ones(len(values))
+        else:
+            weights = np.array(self.weights)
         min_error = np.inf
         min_feature = None
         min_split = None
@@ -269,8 +274,8 @@ class ClassificationTree(BaseTree):
             for split in feature_splits:
                 lower_class_mode = mode(values[feature_vector < split]).mode[0]
                 upper_class_mode = mode(values[feature_vector > split]).mode[0]
-                lower_class_errors = np.sum(values[feature_vector < split] != lower_class_mode)
-                upper_class_errors = np.sum(values[feature_vector > split] != upper_class_mode)
+                lower_class_errors = (np.sum(values[feature_vector < split] != lower_class_mode)) * weights
+                upper_class_errors = (np.sum(values[feature_vector > split] != upper_class_mode)) * weights
                 total_error = upper_class_errors + lower_class_errors
                 if total_error < min_error:
                     min_error = total_error
@@ -510,7 +515,8 @@ class DiscreteAdaBoost(object):
         return self
         
     def add_stump():
-        
+        stump = RegressionTree()
+        stump.fit(self.X, self.y, se
         return self
         
         
