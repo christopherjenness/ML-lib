@@ -553,9 +553,10 @@ class GradientBoostingRegression(object):
         self.y = None
         initial_hypothesis = None
         learning_rate = None
+        tree_depth = None
         self.learned = False
         
-    def fit(self, X, y, n_trees=20, tree_depth=3, learning_rate=1):
+    def fit(self, X, y, n_trees=20, tree_depth=3, learning_rate=0.1):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
@@ -568,22 +569,31 @@ class GradientBoostingRegression(object):
         """
         self.X = X
         self.y = y
-        n_samples = len(self.y)
+        self.learning_rate = learning_rate
+        self.tree_depth = tree_depth
+        self.initial_hypothesis = np.mean(self.y)
         while self.tree_count < n_trees:
-            if self.tree_count == 0:
-                self.initial_hypothesis = np.mean(a)
-            else:
-                current_weights = #Figure this out
+            current_predictions = []
+            for row in self.X:
+                current_predictions.append(self.predict(row))
+            current_predictions = np.array(current_predictions)
+            current_residuals = -(self.y - current_predictions)
             self.add_tree(current_residuals)
             self.tree_count += 1
         self.learned = True
         return self
     
     def add_tree(self, residuals):
-        return 
+        tree = RegressionTree()
+        tree.fit(self.X, residuals, self.tree_depth)
+        self.trees.append(tree)
     
     def predict(self, x):
-        return
+        prediction = self.initial_hypothesis
+        for tree in self.trees:
+            gradient = -tree.predict(x)
+            prediction += self.learning_rate * gradient
+        return prediction
         
     
         
