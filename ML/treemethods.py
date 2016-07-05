@@ -544,10 +544,48 @@ class DiscreteAdaBoost(object):
         prediction = np.sign(np.sum(predictions * self.alphas))
         return prediction
         
+class GradientBoostingRegression(object):
+    
+    def __init__(self):
+        self.tree_count = 0
+        self.trees = []
+        self.X = None
+        self.y = None
+        initial_hypothesis = None
+        learning_rate = None
+        self.learned = False
         
+    def fit(self, X, y, n_trees=20, tree_depth=3, learning_rate=1):
+        """
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.array): Target values of shape[n_samples]
+            n_trees (int): number of trees in regressor
+            tree_depth (int): height of each tree in regressor
+            learning_rate (float): shrinkage parameter.  Determines how much
+                of each new tree to contribute to final hypothesis.
+        Returns: an instance of self
+        """
+        self.X = X
+        self.y = y
+        n_samples = len(self.y)
+        while self.tree_count < n_trees:
+            if self.tree_count == 0:
+                self.initial_hypothesis = np.mean(a)
+            else:
+                current_weights = #Figure this out
+            self.add_tree(current_residuals)
+            self.tree_count += 1
+        self.learned = True
+        return self
+    
+    def add_tree(self, residuals):
+        return 
+    
+    def predict(self, x):
+        return
         
-        
-        
+    
         
         
         
