@@ -3,15 +3,17 @@
 
 * **Supervised Learning:**
   * Linear Regression
-    * With regularization
+    * Regularization
   * Logistic Regression
-    * With regularization
+    * Regularization
   * Support Vector Machines
     * Soft and hard margins
-    * with kernels
+    * Kernels
   * Tree Methods
     * CART (classficiation and regression)
     * PRIM
+    * AdaBoost
+    * Gradient Boost
   * Kernel Methods
     * Nadaraya average
     * Local linear regression
@@ -19,6 +21,7 @@
   * Perceptron
   * Discriminant Analysis
     * LDA, QDA, RDA
+  * K-nearest neighbors
 * **Unsupervised Learning**
   * K means clustering
 * **Model Selection and Validation**
