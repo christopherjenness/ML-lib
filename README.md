@@ -12,6 +12,8 @@
   * Tree Methods
     * CART (classficiation and regression)
     * PRIM
+    * AdaBoost
+    * Gradient Boost
   * Kernel Methods
     * Nadaraya average
     * Local linear regression
