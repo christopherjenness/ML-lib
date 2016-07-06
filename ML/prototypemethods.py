@@ -255,6 +255,12 @@ class DANN(object):
     Discriminant Adaptive Nearest Neighbors (DANN).
     DANN adaptively elongates neighborhoods along boundry regions.
     Useful for high dimensional data.
+    
+    Reference:
+        Hastie, Trevor, and Robert Tibshirani. 
+        "Discriminant adaptive nearest neighbor classification." 
+        IEEE transactions on pattern analysis and machine intelligence 
+        18.6 (1996): 607-616.
     """
     def __init__(self):
         """
@@ -271,8 +277,6 @@ class DANN(object):
 
     def fit(self, X, y, neighborhood_size=50, epsilon=1):
         """
-        Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
-        
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.array): Target values of shape[n_samples]
@@ -289,6 +293,18 @@ class DANN(object):
         return self
         
     def predict(self, x):
+        """
+        Args:
+            x1 (np.array): query point of shape[n_features]
+
+        Returns:
+            prediction: Returns predicted class of sample
+
+        Raises:
+            ValueError if model has not been fit
+        """
+        if not self.learned:
+            raise NameError('Fit model first')
         n_features = len(x)
         distances = []
         for row in self.X:
@@ -318,6 +334,14 @@ class DANN(object):
         sigma = W_star.dot(B_star + self.epsilon * I).dot(W_star)
     
     def DANN_distance(self, x0, x1, sigma):
+        """
+        Computes the distance between x0 and x1 using the DANN metric
+        which is adaptively defined at query locus
+        Args: 
+            x1 (np.array): query point of shape[n_features]
+            x2 (np.array): reference point of shape[n_features]
+            sigma (np.ndarray): array of shape[n_features, n_features]
+        """
         difference = x0 - x1
         distance - difference.T.dot(sigma).difference)
         return distance
