@@ -285,7 +285,43 @@ class DANN(object):
         self.X = X
         self.y = y
         self.neighborhood_size = neighborhood_size
+        self.epsilon = epsilon
         return self
+        
+    def predict(self, x):
+        n_features = len(x)
+        distances = []
+        for row in self.X:
+            distance = np.linalg.norm(row-x)
+            distances.append(distance)
+        distances = np.array(distances)
+        nearest_neighbors = np.argsort(distances)[:self.neighborhood_size]
+        neighborhood_X = self.X[nearest_neighbors, :]
+        neighborhood_X_mean = neighborhood_X.mean(axis=0)
+        neighborhood_y = self.y[nearest_neighbors]
+        neighborhood_classes = np.unique(neighborhood_y)
+        class_frequencies = {}
+        within_class_cov = np.zeros((n_features, n_features))
+        between_class_cov = np.zeros((n_features, n_features))
+        for target_class in neighborhood_classes:
+            class_indices = np.where(neighborhood_y == target_class)[0]
+            class_frequencies[target_class] = np.sum(neighborhood_y == target_class) / self.neighborhood_size
+            class_covariance = np.cov(neighborhood_X[class_indices, :], rowvar=False)
+            within_class_cov += class_covariance * class_frequencies[target_class]
+            class_mean = neighborhood_X[class_indices, :].mean(axis=0)
+            between_class_cov += np.outer(class_mean - neighborhood_X_mean, class_mean - neighborhood_X_mean) * class_frequencies[target_class]
+        # W* = W^-.5
+        # B* = W*BW*
+        W_star = np.linalg.pinv(np.nan_to_num(np.power(within_class_cov, 0.5)))
+        B_star = np.dot(W_star, between_class_cov).dot(W_star)
+        I = np.identity(n_features)
+        sigma = W_star.dot(B_star + self.epsilon * I).dot(W_star)
+    
+    def DANN_distance(self, x0, x1, sigma):
+        difference = x0 - x1
+        distance - difference.T.dot(sigma).difference)
+        return distance
+
     
 
             
