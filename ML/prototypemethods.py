@@ -169,19 +169,58 @@ class LearningVectorQuantization(object):
         self.prototypes = {}
         self.learned = False
 
-    def fit(self, X, y, prototypes=5, max_iter=1000):
+    def fit(self, X, y, n_prototypes=5, epsilon=0.01, max_iter=1000):
         """
         Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
         
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.array): Target values of shape[n_samples]
-            prototypes (int): number of prototypes per class
+            n_prototypes (int): number of prototypes per class
+            epsilon (float): learning rate.  How much to move each prototype per iteration
             max_iter (int): maximum number of iterations through Lloyd's algorithm
 
         Returns:
             self: Returns an instance of self
         """
+        self.X = X
+        self.y = y
+        n_samples = len(self.y)
+        class_vals = np.unique(self.y)
+        class_indices = {}
+        for val in class_vals:
+            class_indices[val] = np.where(self.y == val)[0]
+        # Initialize prototypes with random data points
+        for val in class_vals:
+            random_class_indices = np.random.choice(class_indices[val], n_prototypes, replace=False)
+            self.prototypes[val] = self.X[random_class_indices, :]
+        """
+        LVQ Algorithm:
+            1) Pick random data point (with replacement)
+            2) Identify closest prototype (2 norm)
+            3) If same class, move protytpe toward training point
+            4) If different class, move prototype away from training point
+            5) Repeat
+        """
+        iterations = 0
+        while iterations < max_iter:
+            current_index = np.random.choice(np.arange(n_samples))
+            current_data = self.X[current_index, :]
+            # Find closest prototype
+            closest_prototype = [None, None, None]
+            closest_distance = np.inf
+            for key in self.prototypes:
+                for index, row in enumerate(self.prototypes[key]):
+                    distance = np.linalg.norm(row - current_data)
+                    if distance < closest_distance:
+                        closest_distance = distance
+                        closest_prototype = [key, index, row]
+            print(closest_prototype)
+            if closest_prototype[0] == self.y[current_index]:
+                self.prototypes[closest_prototype[0]][closest_prototype[1]] += epsilon * (current_data - closest_prototype[2])
+            else:
+                self.prototypes[closest_prototype[0]][closest_prototype[1]] -= epsilon * (current_data - closest_prototype[2])
+            iterations += 1
         self.learned = True
         return self
 
@@ -201,6 +240,8 @@ class LearningVectorQuantization(object):
         if not self.learned:
             raise NameError('Fit model first')
         return
+    
+
             
             
             
