@@ -149,3 +149,61 @@ class KMeans(object):
         nearestneighbor = distances.argsort()[0]
         prediction = self.cluster_centers[nearestneighbor, :]
         return prediction
+        
+class LearningVectorQuantization(object):
+    """
+    Learning Vector Quantization: Prototypes are attracted to training 
+    points of correct class, and repeled from training points in incorrect
+    classes.
+    """
+    def __init__(self):
+        """
+        Attributes:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.array): Target values of shape[n_samples]
+            prototypes (dict): location of learned protytpes for each class
+            learned (bool): Keeps track of if model has been fit
+        """
+        self.X = None
+        self.y = None
+        self.prototypes = {}
+        self.learned = False
+
+    def fit(self, X, y, prototypes=5, max_iter=1000):
+        """
+        Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
+        
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.array): Target values of shape[n_samples]
+            prototypes (int): number of prototypes per class
+            max_iter (int): maximum number of iterations through Lloyd's algorithm
+
+        Returns:
+            self: Returns an instance of self
+        """
+        self.learned = True
+        return self
+
+    def predict(self, x):
+        """
+        Note: currenly only works on single vector (one data instance) and not matrices
+
+        Args:
+            x (np.array): sample data of shape[n_features]
+
+        Returns:
+            prediction: Returns predicted class of sample
+
+        Raises:
+            ValueError if model has not been fit
+        """
+        if not self.learned:
+            raise NameError('Fit model first')
+        return
+            
+            
+            
+            
+            
+            
