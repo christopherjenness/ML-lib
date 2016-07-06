@@ -249,6 +249,43 @@ class LearningVectorQuantization(object):
                     closest_prototype = key
         prediction = closest_prototype
         return prediction
+
+class DANN(object):
+    """
+    Discriminant Adaptive Nearest Neighbors (DANN).
+    DANN adaptively elongates neighborhoods along boundry regions.
+    Useful for high dimensional data.
+    """
+    def __init__(self):
+        """
+        Attributes:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.array): Target values of shape[n_samples]
+            neighborhood_size (int): number of nearest neighbors to consider when predicting
+            learned (bool): Keeps track of if model has been fit
+        """
+        self.X = None
+        self.y = None
+        self.neighborhood_size = None
+        self.learned = False
+
+    def fit(self, X, y, neighborhood_size=50, epsilon=1):
+        """
+        Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
+        
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.array): Target values of shape[n_samples]
+            neighborhood_size (int): number of nearest neighbors to consider when predicting
+            epsilon (float): learning rate.  How much to move each prototype per iteration
+
+        Returns:
+            self: Returns an instance of self
+        """
+        self.X = X
+        self.y = y
+        self.neighborhood_size = neighborhood_size
+        return self
     
 
             
