@@ -239,7 +239,16 @@ class LearningVectorQuantization(object):
         """
         if not self.learned:
             raise NameError('Fit model first')
-        return
+        closest_prototype = None
+        closest_distance = np.inf
+        for key in self.prototypes:
+            for row in self.prototypes[key]:
+                distance = np.linalg.norm(row - x)
+                if distance < closest_distance:
+                    closest_distance = distance
+                    closest_prototype = key
+        prediction = closest_prototype
+        return prediction
     
 
             
