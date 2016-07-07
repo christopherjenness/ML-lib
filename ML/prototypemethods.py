@@ -290,12 +290,14 @@ class DANN(object):
         self.y = y
         self.neighborhood_size = neighborhood_size
         self.epsilon = epsilon
+        self.learned = True
         return self
         
-    def predict(self, x):
+    def predict(self, x, k=10):
         """
         Args:
             x1 (np.array): query point of shape[n_features]
+            k (int): number of nearest neighbors to consider
 
         Returns:
             prediction: Returns predicted class of sample
@@ -332,6 +334,13 @@ class DANN(object):
         B_star = np.dot(W_star, between_class_cov).dot(W_star)
         I = np.identity(n_features)
         sigma = W_star.dot(B_star + self.epsilon * I).dot(W_star)
+        distances = []
+        for row in self.X:
+            distances.append(self.DANN_distance(x, row, sigma))
+        distances = np.array(distances)
+        nearest = distances.argsort()[:k]
+        prediction = stats.mode(self.y[nearest]).mode[0]
+        return prediction
     
     def DANN_distance(self, x0, x1, sigma):
         """
@@ -343,7 +352,7 @@ class DANN(object):
             sigma (np.ndarray): array of shape[n_features, n_features]
         """
         difference = x0 - x1
-        distance - difference.T.dot(sigma).difference)
+        distance = difference.T.dot(sigma).dot(difference)
         return distance
 
     
