@@ -200,7 +200,16 @@ class KMediods(object):
             # Cost is sum of distances to mediod (within group)
             new_centers = np.zeros((clusters, n_features))
             for cluster in range(clusters):
-                # algorithm to update mediods
+                cluseter_cost = np.inf
+                best_mediod = None
+                for point in self.samples[self.sample_assignments == cluster, :]:
+                    differences = self.samples[self.sample_assignments == cluster, :] - row
+                    distances = np.dot(differences, differences.T)
+                    total_distance = np.sum(distances)
+                    if total_distance < cluster_cost:
+                        cluster_cost = total_distance
+                        beset_mediod = row
+                    new_centers[cluster, :] = best_mediod
             if (self.cluster_centers == new_centers).all():
                 break
             self.cluster_centers = new_centers
