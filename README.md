@@ -21,7 +21,10 @@
   * Perceptron
   * Discriminant Analysis
     * LDA, QDA, RDA
-  * K-nearest neighbors
+  * Prototype Methods
+    * KNN
+    * LVQ
+    * DANN
 * **Unsupervised Learning**
   * K means clustering
 * **Model Selection and Validation**
