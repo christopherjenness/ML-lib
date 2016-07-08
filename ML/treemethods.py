@@ -678,10 +678,10 @@ class GradientBoostingRegression(object):
             gradient = -tree.predict(x)
             prediction += self.learning_rate * gradient
         return prediction
-        
+
 class RandomForestRegression(object):
     """
-    Random Forests are an ensemble method which averages a set of 
+    Random Forests are an ensemble method which averages a set of
     de-correlated trees.
     In this implimentation, a bootstrapped sample is used to generage each tree,
     and each tree uses a subset of total features.
@@ -748,7 +748,7 @@ class RandomForestRegression(object):
         Returns: an instance of self.
         """
         current_tree = RegressionTree()
-        current_tree.fit(X, y, height = self.tree_depth)
+        current_tree.fit(X, y, height=self.tree_depth)
         self.trees.append(current_tree)
         return self
 
@@ -774,13 +774,3 @@ class RandomForestRegression(object):
             prediction = tree.predict(current_data)
             predictions.append(prediction)
         return np.mean(predictions)
-            
-            
-            
-
-          
-            
-            
-            
-            
-    
