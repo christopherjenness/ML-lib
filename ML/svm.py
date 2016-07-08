@@ -127,8 +127,26 @@ class SupportVectorMachine(object):
             prediction += self.SValphas[SV] * self.SVoutputs[SV] * self.kernel(self.SVinputs[SV], x)
         prediction += self.intercept
         return np.sign(prediction)
+        
+class kernels(object):
+    @staticmethod
+    def linear(x1, x2, *args):
+        return np.dot(x1, x2.T)
 
-class Perceptron:
+    @staticmethod
+    def polynomial(x1, x2, power, coef, *args):
+        return (np.dot(x1, x2) + c)**power
+
+    @staticmethod
+    def rbf(x1, x2, gamma):
+        difference = x1 - x2
+        return np.exp(-gamma * (np.dot(difference, difference.T)**2))
+
+    @staticmethod
+    def tanh(x1, x2, k, c):
+        return math.tanh(k * np.dot(x1, x2) + c)
+
+class Perceptron(object):
     """
     Perceptron classifier of binary data.  If data is not linearly seperable data,
     the pocket algorithm is highly recommended
