@@ -2,8 +2,8 @@
 Prototype methods are unstructured methods that represent that training
 data with prototypes in the feature space.
 """
-import numpy as np
 import random
+import numpy as np
 from scipy import stats
 
 class KNearestNeighbor(object):
@@ -85,7 +85,7 @@ class KMeans(object):
     def fit(self, X, clusters=2, max_iter=1000):
         """
         Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
-        
+
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             clusters (int): number of clusters to determine
@@ -107,7 +107,7 @@ class KMeans(object):
             for sample in range(n_samples):
                 distances = np.array([])
                 for row in range(clusters):
-                    current_distance =  np.linalg.norm(self.cluster_centers[row, :] - self.samples[sample, :])
+                    current_distance = np.linalg.norm(self.cluster_centers[row, :] - self.samples[sample, :])
                     distances = np.append(distances, current_distance)
                 nearest_center = distances.argsort()[0]
                 self.sample_assignments[sample] = nearest_center
@@ -116,12 +116,12 @@ class KMeans(object):
             for cluster in range(clusters):
                 samples_in_cluster = np.where(self.sample_assignments == cluster)[0]
                 print(samples_in_cluster)
-                new_centers[cluster, :] = self.samples[samples_in_cluster, :].mean(axis = 0)
+                new_centers[cluster, :] = self.samples[samples_in_cluster, :].mean(axis=0)
             if (self.cluster_centers == new_centers).all():
                 break
             self.cluster_centers = new_centers
             iteration += 1
-        self.learned = True  
+        self.learned = True
         return self
 
     def predict(self, x):
@@ -170,7 +170,7 @@ class KMediods(object):
     def fit(self, X, clusters=2, max_iter=20):
         """
         Randomly initializes clusers, iteratively update cluster center
-        
+
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             clusters (int): number of clusters to determine
@@ -193,13 +193,13 @@ class KMediods(object):
                 distances = []
                 for row in range(clusters):
                     difference = (self.cluster_centers[row, :] - self.samples[sample, :])
-                    current_distance =  np.linalg.norm(difference)
+                    current_distance = np.linalg.norm(difference)
                     distances.append(current_distance)
                 distances = np.array(distances)
                 nearest_center = distances.argsort()[0]
                 self.sample_assignments[sample] = nearest_center
             print(self.sample_assignments)
-            #Update cluster centers to mediods that minimize cost
+            # Update cluster centers to mediods that minimize cost
             # Cost is sum of distances to mediod (within group)
             new_centers = np.zeros((clusters, n_features))
             for cluster in range(clusters):
@@ -217,7 +217,7 @@ class KMediods(object):
                 break
             self.cluster_centers = new_centers
             iteration += 1
-        self.learned = True  
+        self.learned = True
         return self
 
     def predict(self, x):
@@ -242,10 +242,10 @@ class KMediods(object):
         nearestneighbor = distances.argsort()[0]
         prediction = self.cluster_centers[nearestneighbor, :]
         return prediction
-        
+
 class LearningVectorQuantization(object):
     """
-    Learning Vector Quantization: Prototypes are attracted to training 
+    Learning Vector Quantization: Prototypes are attracted to training
     points of correct class, and repeled from training points in incorrect
     classes.
     """
@@ -265,7 +265,7 @@ class LearningVectorQuantization(object):
     def fit(self, X, y, n_prototypes=5, epsilon=0.01, max_iter=1000):
         """
         Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
-        
+
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.array): Target values of shape[n_samples]
@@ -348,11 +348,10 @@ class DANN(object):
     Discriminant Adaptive Nearest Neighbors (DANN).
     DANN adaptively elongates neighborhoods along boundry regions.
     Useful for high dimensional data.
-    
     Reference:
-        Hastie, Trevor, and Robert Tibshirani. 
-        "Discriminant adaptive nearest neighbor classification." 
-        IEEE transactions on pattern analysis and machine intelligence 
+        Hastie, Trevor, and Robert Tibshirani.
+        "Discriminant adaptive nearest neighbor classification."
+        IEEE transactions on pattern analysis and machine intelligence
         18.6 (1996): 607-616.
     """
     def __init__(self):
@@ -385,7 +384,7 @@ class DANN(object):
         self.epsilon = epsilon
         self.learned = True
         return self
-        
+
     def predict(self, x, k=10):
         """
         Args:
@@ -434,12 +433,12 @@ class DANN(object):
         nearest = distances.argsort()[:k]
         prediction = stats.mode(self.y[nearest]).mode[0]
         return prediction
-    
+
     def DANN_distance(self, x0, x1, sigma):
         """
         Computes the distance between x0 and x1 using the DANN metric
         which is adaptively defined at query locus
-        Args: 
+        Args:
             x1 (np.array): query point of shape[n_features]
             x2 (np.array): reference point of shape[n_features]
             sigma (np.ndarray): array of shape[n_features, n_features]
@@ -447,12 +446,3 @@ class DANN(object):
         difference = x0 - x1
         distance = difference.T.dot(sigma).dot(difference)
         return distance
-
-    
-
-            
-            
-            
-            
-            
-            
