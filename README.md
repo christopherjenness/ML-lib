@@ -10,7 +10,7 @@
     * Soft and hard margins
     * Kernels
   * Tree Methods
-    * CART (classficiation and regression)
+    * CART (classificiation and regression)
     * PRIM
     * AdaBoost
     * Gradient Boost
@@ -26,6 +26,7 @@
     * LVQ
     * DANN
 * **Unsupervised Learning**
-  * K means clustering
+  * K means/mediods clustering
+  * PCA
 * **Model Selection and Validation**
 
