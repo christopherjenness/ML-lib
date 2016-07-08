@@ -655,6 +655,7 @@ class GradientBoostingRegression(object):
         tree = RegressionTree()
         tree.fit(self.X, residuals, self.tree_depth)
         self.trees.append(tree)
+        return self
 
     def predict(self, x):
         """
@@ -707,6 +708,15 @@ class RandomForestRegression(object):
         self.learned = False
 
     def fit(self, X, y, n_trees=20, tree_depth=6, bootstrap=True):
+        """
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.array): Target values of shape[n_samples]
+            n_trees (int): number of trees in regressor
+            tree_depth (int): height of each tree in regressor
+            bootstrap (bool): Whether a bootstrap sample is used for tree fitting
+        Returns: an instance of self
+        """
         self.X = X
         self.y = y
         n_samples, n_features = np.shape(X)
@@ -726,11 +736,38 @@ class RandomForestRegression(object):
         return self
 
     def add_tree(self, X, y):
+        """
+        Args:
+            X (np.ndarray): Training data of shape[n_samples, n_features]
+            y (np.ndarray): Target values of shape[n_samples, 1]
+
+        Notes:
+            This method is used because random forests used a bootstraped
+            sample and only a subset of features
+
+        Returns: an instance of self.
+        """
         current_tree = RegressionTree()
         current_tree.fit(X, y, height = self.tree_depth)
         self.trees.append(current_tree)
+        return self
 
     def predict(self, x):
+        """
+        Args:
+            x (np.array): Training data of shape[n_features,]
+
+        Returns:
+            prediction (float): predicted value
+
+        Raises:
+            ValueError if model has not been fit
+
+        Notes:
+            Currently, only a single data instance can be predicted at a time.
+        """
+        if not self.learned:
+            raise NameError('Fit model first')
         predictions = []
         for index, tree in enumerate(self.trees):
             current_data = x[self.features[index]]
