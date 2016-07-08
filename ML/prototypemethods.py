@@ -167,7 +167,7 @@ class KMediods(object):
         self.cluster_centers = np.nan
         self.learned = False
 
-    def fit(self, X, clusters=2, max_iter=1000):
+    def fit(self, X, clusters=2, max_iter=20):
         """
         Randomly initializes clusers, iteratively update cluster center
         
@@ -190,25 +190,28 @@ class KMediods(object):
             print(iteration)
             #Assign each point to nearest center
             for sample in range(n_samples):
-                distances = np.array([])
+                distances = []
                 for row in range(clusters):
-                    current_distance =  np.linalg.norm(self.cluster_centers[row, :] - self.samples[sample, :])
-                    distances = np.append(distances, current_distance)
+                    difference = (self.cluster_centers[row, :] - self.samples[sample, :])
+                    current_distance =  np.linalg.norm(difference)
+                    distances.append(current_distance)
+                distances = np.array(distances)
                 nearest_center = distances.argsort()[0]
                 self.sample_assignments[sample] = nearest_center
+            print(self.sample_assignments)
             #Update cluster centers to mediods that minimize cost
             # Cost is sum of distances to mediod (within group)
             new_centers = np.zeros((clusters, n_features))
             for cluster in range(clusters):
-                cluseter_cost = np.inf
+                cluster_cost = np.inf
                 best_mediod = None
                 for point in self.samples[self.sample_assignments == cluster, :]:
-                    differences = self.samples[self.sample_assignments == cluster, :] - row
+                    differences = self.samples[self.sample_assignments == cluster, :] - point
                     distances = np.dot(differences, differences.T)
-                    total_distance = np.sum(distances)
+                    total_distance = np.trace(distances)
                     if total_distance < cluster_cost:
                         cluster_cost = total_distance
-                        beset_mediod = row
+                        best_mediod = point
                     new_centers[cluster, :] = best_mediod
             if (self.cluster_centers == new_centers).all():
                 break
