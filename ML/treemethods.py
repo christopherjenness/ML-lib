@@ -713,19 +713,23 @@ class RandomForestRegression(object):
         features_per_tree = int(np.sqrt(n_features))
         self.tree_depth = tree_depth
         while self.tree_count < n_trees:
-            current_predictions = np.random.choice(np.arange(n_features), features_per_tree, replace=False)
+            current_variables = np.random.choice(np.arange(n_features), features_per_tree, replace=False)
+            self.features.append(current_variables)
             if bootstrap:
                 current_indices = np.random.choice(np.arange(n_samples), n_samples, replace=True)
             else:
                 current_indices = np.arange(n_samples)
+            print(current_indices, current_variables)
             current_samples = self.X[current_indices]
-            self.add_tree(self.X[current_indices, current_predictions])
+            self.add_tree(current_samples[:, current_variables], self.y[current_indices])
             self.tree_count += 1
         self.learned = True
         return self
     
     def add_tree(self, X, y):
-        return
+        current_tree = RegressionTree()
+        current_tree.fit(X, y, height = self.tree_depth)
+        self.trees.append(current_tree)
     
     def predict(self, x):
         return
