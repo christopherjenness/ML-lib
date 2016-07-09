@@ -53,6 +53,6 @@ It contains the following functionality:
 
 ![Imgur](http://i.imgur.com/9Fw80Ex.png)
 
-![Imgur](http://i.imgur.com/zkl2AGy.png)
+![SLiMG Image](https://i.sli.mg/PI5jJl.png)
 
 
