@@ -21,6 +21,7 @@ It contains the following functionality:
     * PRIM
     * AdaBoost
     * Gradient Boost
+    * Random Forrests
   * Kernel Methods
     * Nadaraya average
     * Local linear regression
