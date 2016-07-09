@@ -21,18 +21,18 @@ It contains the following functionality:
     * PRIM
     * AdaBoost
     * Gradient Boost
-    * Random Forrests
+    * Random Forests
   * Kernel Methods
     * Nadaraya average
     * Local linear regression
     * Kernel density classification
-  * Perceptron
   * Discriminant Analysis
     * LDA, QDA, RDA
   * Prototype Methods
     * KNN
     * LVQ
     * DANN
+  * Perceptron
 * **Unsupervised Learning**
   * K means/mediods clustering
   * PCA
@@ -52,5 +52,7 @@ It contains the following functionality:
 ![Imgur](http://i.imgur.com/dpSlL5z.jpg)
 
 ![Imgur](http://i.imgur.com/9Fw80Ex.png)
+
+![Imgur](http://i.imgur.com/zkl2AGy.png)
 
 
