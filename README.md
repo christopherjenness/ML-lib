@@ -1,4 +1,13 @@
-# ML
+# Overview
+
+This is a machine learning library, made from scratch.  
+
+It uses:
+* `numpy`: for handling matrices/vectors
+* `cvxopt`: for convex optimization
+* `networkx`: for handling graphs in decision trees
+
+It contains the following functionality:
 * **Supervised Learning:**
   * Linear Regression
     * Regularization
