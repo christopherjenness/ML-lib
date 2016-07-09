@@ -1,6 +1,4 @@
 # ML
-
-
 * **Supervised Learning:**
   * Linear Regression
     * Regularization
@@ -29,4 +27,16 @@
   * K means/mediods clustering
   * PCA
 * **Model Selection and Validation**
+
+# Examples
+### Regression
+
+![Imgur](http://i.imgur.com/YJl0DfM.png)
+
+![Imgur](http://i.imgur.com/eOarDws.png)
+
+### Support Vector Machines
+
+![Imgur](http://i.imgur.com/Uw4puZ1.jpg)
+
 
