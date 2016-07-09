@@ -1,11 +1,12 @@
 """
+Linear, Quadratic and Regularized discriminant analysis.
 Regularized discriminant analysis is a compromise between
 linear discrimenent analysis and quadratic discrimenent analysis.
 """
 
 import numpy as np
 
-class RegularizedDisriminentAnalysis():
+class DisriminentAnalysis():
     """
     Class for implimenting Regularized Discriminent Analysis
     LDA is performed when alpha == 1
