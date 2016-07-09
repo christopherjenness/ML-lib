@@ -48,4 +48,8 @@ It contains the following functionality:
 
 ![Imgur](http://i.imgur.com/Uw4puZ1.jpg)
 
+![Imgur](http://i.imgur.com/dpSlL5z.jpg)
+
+![Imgur](http://i.imgur.com/9Fw80Ex.png)
+
 
