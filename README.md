@@ -120,6 +120,8 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 * Discriminant Adaptive Nearest Neighbors (DANN). DANN adaptively elongates neighborhoods along boundry regions.
 * Useful for high dimensional data.
 
+![SLiMG Image](https://i.sli.mg/RVveSp.png)
+
 ## Unsupervised Learning
 
 * K means and K mediods clustering.  Partitions data into K clusters.
