@@ -69,4 +69,12 @@ It contains the following functionality:
 
 ![Imgur](http://i.imgur.com/JM7VeQ2.png)
 
+## Discriminant Analysis
+
+![SLiMG Image](https://i.sli.mg/VzMHo8.png)
+
+![SLiMG Image](https://i.sli.mg/9jjM9f.png)
+
+![SLiMG Image](https://i.sli.mg/qkkVhS.png)
+
 
