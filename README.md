@@ -111,9 +111,11 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 * K-nearest neighbors determines target values by averaging the k-nearest data points.  The library supports both regression and classification.
 
-![SLiMG Image](https://i.sli.mg/5TGesz.png)
+![SLiMG Image](https://i.sli.mg/BGNG04.png)
 
 * Learning vector quantization is a prototype method where prototypes are iteratively repeled by out-of-class data, and attracted to in-class data
+
+![SLiMG Image](https://i.sli.mg/Ll8yl6.png)
 
 * Discriminant Adaptive Nearest Neighbors (DANN). DANN adaptively elongates neighborhoods along boundry regions.
 * Useful for high dimensional data.
