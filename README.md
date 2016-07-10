@@ -39,7 +39,10 @@ It contains the following functionality:
 * **Model Selection and Validation**
 
 # Examples
+Examples are shown in two dimensions for visualisation purposes, however, all methods can handle high dimensional data.
 ## Regression
+
+* Linear and logistic regression with regularization
 
 ![Imgur](http://i.imgur.com/YJl0DfM.png)
 
@@ -47,34 +50,65 @@ It contains the following functionality:
 
 ## Support Vector Machines
 
+* Support vector machines maximize the margins between classes
+
 ![Imgur](http://i.imgur.com/Uw4puZ1.jpg)
+
+* Using kernels, support vector machines can produce non-linear decision boundries.  The RBF kernel is shown below
 
 ![Imgur](http://i.imgur.com/dpSlL5z.jpg)
 
 ![Imgur](http://i.imgur.com/9Fw80Ex.png)
 
+* An alternative learning algorithm, the perceptron, can linearly separate classes.  It does not maximize the margin, and is severely limited.
+
 ![SLiMG Image](https://i.sli.mg/PI5jJl.png)
 
 ## Tree Methods
 
+* The library contains a large collection of tree methods, the basis of which are a decision trees for classification and regression
+
 ![Imgur](http://i.imgur.com/Mmkehxq.png)
+
+These decision trees can be aggregated, and the library supports the following ensemble methods:
+* AdaBoosting
+* Gradient Boosting
+* Random Forests
 
 ## Kernel Methods
 
+Kernel methods estimate the target function by fitting seperate functions at each point using local smoothing of training data
+
+* Nadaraya–Watson estimation uses a local weighted average
+
 ![Imgur](http://i.imgur.com/QptSDUu.png)
 
+* Local linear regression uses weighted least squares to locally fit an affine function to the data
+
 ![Imgur](http://i.imgur.com/JM7VeQ2.png)
+
+* The library also supports kernel density estimation (KDE) of data which is used for kernel density classification
 
 ![Imgur](http://i.imgur.com/VtAbSWs.png)
 
-![Imgur](http://i.imgur.com/JM7VeQ2.png)
-
 ## Discriminant Analysis
+
+* Linear Discriminant Analysis creates decision boundries by assuming classes have the same covariance matrix.
+* LDA can only form linear boundries
 
 ![SLiMG Image](https://i.sli.mg/VzMHo8.png)
 
+* Quadratic Discriminant Analysis creates deicion boundries by assuming classes have indepdent covariance matrices.
+* QDA can form non-linear boundries.
+
 ![SLiMG Image](https://i.sli.mg/9jjM9f.png)
 
+* Regularized Discriminant Analysis uses a combination of pooled and class covariance matrices to determine decision boundries.
+
 ![SLiMG Image](https://i.sli.mg/qkkVhS.png)
+
+## Prototype Methods
+
+## Learning
 
 
