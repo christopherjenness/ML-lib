@@ -96,7 +96,7 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 * Linear Discriminant Analysis creates decision boundries by assuming classes have the same covariance matrix.
 * LDA can only form linear boundries
 
-![SLiMG Image](https://i.sli.mg/VzMHo8.png)
+![SLiMG Image](https://i.sli.mg/ukWqRT.png)
 
 * Quadratic Discriminant Analysis creates deicion boundries by assuming classes have indepdent covariance matrices.
 * QDA can form non-linear boundries.
@@ -105,7 +105,7 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 * Regularized Discriminant Analysis uses a combination of pooled and class covariance matrices to determine decision boundries.
 
-![SLiMG Image](https://i.sli.mg/qkkVhS.png)
+![SLiMG Image](https://i.sli.mg/dEeLC2.png)
 
 ## Prototype Methods
 
