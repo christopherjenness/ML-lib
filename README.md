@@ -109,6 +109,19 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 ## Prototype Methods
 
-## Learning
+* K-nearest neighbors determines target values by averaging the k-nearest data points.  The library supports both regression and classification.
+
+![SLiMG Image](https://i.sli.mg/5TGesz.png)
+
+* Learning vector quantization is a prototype method where prototypes are iteratively repeled by out-of-class data, and attracted to in-class data
+
+* Discriminant Adaptive Nearest Neighbors (DANN). DANN adaptively elongates neighborhoods along boundry regions.
+* Useful for high dimensional data.
+
+## Unsupervised Learning
+
+* K means and K mediods clustering.  Partitions data into K clusters.
+
+* Principal Component Analysis (PCA) Transforms given data set into orthonormal basis, maximizing variance.
 
 
