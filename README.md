@@ -126,7 +126,7 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 * K means and K mediods clustering.  Partitions data into K clusters.
 
-![SLiMG Image](https://i.sli.mg/muv9dc.png)
+![SLiMG Image](https://i.sli.mg/eBRfDT.png)
 
 * Principal Component Analysis (PCA) Transforms given data set into orthonormal basis, maximizing variance.
 
