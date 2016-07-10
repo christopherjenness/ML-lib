@@ -39,13 +39,13 @@ It contains the following functionality:
 * **Model Selection and Validation**
 
 # Examples
-### Regression
+## Regression
 
 ![Imgur](http://i.imgur.com/YJl0DfM.png)
 
 ![Imgur](http://i.imgur.com/eOarDws.png)
 
-### Support Vector Machines
+## Support Vector Machines
 
 ![Imgur](http://i.imgur.com/Uw4puZ1.jpg)
 
@@ -54,5 +54,11 @@ It contains the following functionality:
 ![Imgur](http://i.imgur.com/9Fw80Ex.png)
 
 ![SLiMG Image](https://i.sli.mg/PI5jJl.png)
+
+## Tree Methods
+
+![Imgur](http://i.imgur.com/Mmkehxq.png)
+
+## Kernel Methods
 
 
