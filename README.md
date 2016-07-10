@@ -130,4 +130,6 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 * Principal Component Analysis (PCA) Transforms given data set into orthonormal basis, maximizing variance.
 
+![SLiMG Image](https://i.sli.mg/45c9FN.png)
+
 
