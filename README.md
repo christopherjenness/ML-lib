@@ -9,9 +9,9 @@ It uses:
 
 It contains the following functionality:
 * **Supervised Learning:**
-  * Linear Regression
-    * Regularization
-  * Logistic Regression
+  * Regression
+    * Linear Regression
+    * Logistic Regression
     * Regularization
   * Support Vector Machines
     * Soft and hard margins
@@ -60,5 +60,13 @@ It contains the following functionality:
 ![Imgur](http://i.imgur.com/Mmkehxq.png)
 
 ## Kernel Methods
+
+![Imgur](http://i.imgur.com/QptSDUu.png)
+
+![Imgur](http://i.imgur.com/JM7VeQ2.png)
+
+![Imgur](http://i.imgur.com/VtAbSWs.png)
+
+![Imgur](http://i.imgur.com/JM7VeQ2.png)
 
 
