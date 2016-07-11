@@ -40,8 +40,7 @@ class DisriminentAnalysis():
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1]
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
         """
         self.class_names = np.unique(y)
         class_covariances = {}
@@ -66,8 +65,8 @@ class DisriminentAnalysis():
         Args:
             x (np.array): Training data of shape[1, n_features]
                 Currently, only vector of single sample is supported
-        Returns:
-            prediction: Returns predicted class of sample
+                
+        Returns: predicted class of sample
 
         Raises:
             ValueError if model has not been fit

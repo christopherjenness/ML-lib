@@ -24,8 +24,7 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                 combinatorial is not reccomended for large number of parameters
 
     Returns:
-        current_params (np.ndarray): shape[parameters, 1]
-        Returns best subset of parameters that minimize in sample error
+        np.ndarray: shape[parameters, 1], best subset of parameters that minimize in sample error
     """
 
     n_features = np.shape(X)[1]

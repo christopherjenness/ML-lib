@@ -62,8 +62,7 @@ class SupportVectorMachine(object):
             reg_parameter (float): float to determine strength of regulatrization  penalty
                 if 0, then no linear regression without regularization is performed
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
 
         Raises:
             ValueError if y contains values other than 0 and 1
@@ -114,8 +113,7 @@ class SupportVectorMachine(object):
             X (np.ndarray): Training data of shape[n_samples, n_features]
 
         Returns:
-            prediction (np.ndarray): shape[n_samples, 1]
-                Returns predicted values
+            np.ndarray: shape[n_samples, 1], the predicted values
 
         Raises:
             ValueError if model has not been fit
@@ -178,8 +176,7 @@ class Perceptron(object):
             X (np.ndarray): Training data of shape[n_samples, n_features]
 
         Returns:
-            prediction (np.ndarray): shape[n_samples 1)
-                Returns predicted values
+            np.ndarray: shape[n_samples 1), predicted values
 
         Raises:
             ValueError if model has not been fit
@@ -198,8 +195,7 @@ class Perceptron(object):
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1]
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
 
         Raises:
             ValueError if y contains values other than -1 and 1

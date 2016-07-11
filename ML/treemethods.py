@@ -56,7 +56,7 @@ class BaseTree(object):
             x (np.array): Training data of shape[n_features,]
 
         Returns:
-            prediction (float): predicted value
+            float: predicted value
 
         Raises:
             ValueError if model has not been fit
@@ -128,7 +128,7 @@ class BaseTree(object):
             node_number (int): Node in tree to partition data down to
 
         Returns:
-            data_indices (np.array): Array of indices from training data which
+            np.array: Array of indices from training data which
                 partition to node
         """
         predecessors = self.get_predecessors(node_number)
@@ -194,7 +194,7 @@ class RegressionTree(BaseTree):
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
 
-        Returns:
+        Returns: (min_split, min_feature)
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
@@ -255,7 +255,7 @@ class ClassificationTree(BaseTree):
             values (np.array): values of shape[n_samples,]
                 Target values which node split will be based off of
 
-        Returns:
+        Returns:  (min_split, min_feature)
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
@@ -339,7 +339,7 @@ class PrimRegression(BaseTree):
                 Target values which node split will be based off of
 
         Returns:
-            cutoffs (dict): Dictionary of cutoffs to use
+            dict: Dictionary of cutoffs to use 
             {variable: [min_cutoff, max_cutoff]}
             Example: {3, [-12.5, 10]} means samples boxed between 12.5 and 10
                 on variable 3 are in the box.
@@ -382,7 +382,7 @@ class PrimRegression(BaseTree):
             x (np.array): Training data of shape[n_features,]
 
         Returns:
-            prediction (float): predicted value
+            float: predicted value
 
         Raises:
             ValueError if model has not been fit
@@ -436,7 +436,7 @@ class PrimRegression(BaseTree):
             node_number (int): Node in tree to partition data down to
 
         Returns:
-            data_indices (np.array): Array of indices from training data which
+            np.array: Array of indices from training data which
                 partition to node
         """
         predecessors = self.get_predecessors(node_number)
@@ -565,7 +565,7 @@ class DiscreteAdaBoost(object):
             x (np.array): Training data of shape[n_features,]
 
         Returns:
-            prediction (float): predicted value
+            float: predicted value
 
         Raises:
             ValueError if model has not been fit
@@ -623,6 +623,7 @@ class GradientBoostingRegression(object):
             tree_depth (int): height of each tree in regressor
             learning_rate (float): shrinkage parameter.  Determines how much
                 of each new tree to contribute to final hypothesis.
+
         Returns: an instance of self
         """
         self.X = X
@@ -663,7 +664,7 @@ class GradientBoostingRegression(object):
             x (np.array): Training data of shape[n_features,]
 
         Returns:
-            prediction (float): predicted value
+            float: predicted value
 
         Raises:
             ValueError if model has not been fit
@@ -715,6 +716,7 @@ class RandomForestRegression(object):
             n_trees (int): number of trees in regressor
             tree_depth (int): height of each tree in regressor
             bootstrap (bool): Whether a bootstrap sample is used for tree fitting
+
         Returns: an instance of self
         """
         self.X = X
@@ -758,7 +760,7 @@ class RandomForestRegression(object):
             x (np.array): Training data of shape[n_features,]
 
         Returns:
-            prediction (float): predicted value
+            float: predicted value
 
         Raises:
             ValueError if model has not been fit

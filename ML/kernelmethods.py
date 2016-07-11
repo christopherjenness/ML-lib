@@ -117,7 +117,7 @@ class KernelMethods(object):
             gamma: gaussian width from which to sample
 
         Returns:
-            estimate (float): KDE estimate at point x, given samples
+            float: KDE estimate at point x, given samples
         """
         samples = np.matrix(samples)
         N = len(x)
@@ -138,7 +138,7 @@ class KernelMethods(object):
         x (np.array): Test data of shape [n_features]
         gamma: gaussian width from which to sample in KDE
 
-        Returns: prediction (float): Returns predicted class of test data x
+        Returns: float: Returns predicted class of test data x
 
         Raises:
             ValueError if model has not been fit

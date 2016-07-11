@@ -27,8 +27,7 @@ class KNearestNeighbor(object):
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1]
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
         """
         self.samples = X
         self.values = y
@@ -47,7 +46,7 @@ class KNearestNeighbor(object):
                 Choice most likely depends on the type of data the model was fit with.
 
         Returns:
-            prediction (float): Returns predicted value
+            float: Returns predicted value
 
         Raises:
             ValueError if model has not been fit
@@ -91,8 +90,7 @@ class KMeans(object):
             clusters (int): number of clusters to determine
             max_iter (int): maximum number of iterations through Lloyd's algorithm
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
         """
         self.samples = X
         n_samples, n_features = np.shape(X)
@@ -132,7 +130,7 @@ class KMeans(object):
             x (np.ndarray): Training data of shape[1, n_features]
 
         Returns:
-            prediction (np.array): Returns nearest cluster to x
+            np.array: nearest cluster to x
 
         Raises:
             ValueError if model has not been fit
@@ -176,8 +174,7 @@ class KMediods(object):
             clusters (int): number of clusters to determine
             max_iter (int): maximum number of iterations through Lloyd's algorithm
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
         """
         self.samples = X
         n_samples, n_features = np.shape(X)
@@ -228,7 +225,7 @@ class KMediods(object):
             x (np.ndarray): Training data of shape[1, n_features]
 
         Returns:
-            prediction (np.array): Returns nearest cluster to x
+            np.array: nearest cluster to x
 
         Raises:
             ValueError if model has not been fit
@@ -273,8 +270,7 @@ class LearningVectorQuantization(object):
             epsilon (float): learning rate.  How much to move each prototype per iteration
             max_iter (int): maximum number of iterations through Lloyd's algorithm
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
         """
         self.X = X
         self.y = y
@@ -325,7 +321,7 @@ class LearningVectorQuantization(object):
             x (np.array): sample data of shape[n_features]
 
         Returns:
-            prediction: Returns predicted class of sample
+            predicted class of sample
 
         Raises:
             ValueError if model has not been fit
@@ -375,8 +371,7 @@ class DANN(object):
             neighborhood_size (int): number of nearest neighbors to consider when predicting
             epsilon (float): learning rate.  How much to move each prototype per iteration
 
-        Returns:
-            self: Returns an instance of self
+        Returns: an instance of self
         """
         self.X = X
         self.y = y
@@ -391,8 +386,8 @@ class DANN(object):
             x1 (np.array): query point of shape[n_features]
             k (int): number of nearest neighbors to consider
 
-        Returns:
-            prediction: Returns predicted class of sample
+        Returns: 
+            Predicted class of sample
 
         Raises:
             ValueError if model has not been fit
