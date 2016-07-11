@@ -27,8 +27,10 @@ def gradientdescent(X, y, gradient, cost=None, alpha=0.01, iterations=10000,
             based on extrapolation
         backtrack_beta (float): In range(0, 1), how quickly step size is updated
             when calculating backtrack.
+
     Returns:
         (np.ndarray): shape[n_features, 1], array of weights
+
     Notes:
         Currently, backtracking line search is incompatable with
         stochastic=True
@@ -75,8 +77,10 @@ def steepestdescent(X, y, gradient, alpha=0.01, iterations=10000,
         norm {'L1'}: Norm used to find steepest descent direction
             L1: Coordinant gradient descent. Each step is in the coordinant
                 direciton that is steepest.
+
     Returns:
         np.ndarray: shape[n_features, 1] array of weights
+
     Notes:
         Currently, only L1 norm is implimented.  In the future, other norms
         can be added.
@@ -108,8 +112,10 @@ def newtonsmethod(X, y, gradient, hessian, alpha=0.01, iterations=10000,
         alpha (float): step size during each gradient descent iteration
         iterations (int): Number of iterations of gradient descent to perform
         initial_weights (np.ndarray): initial weights for gradient descent
+
     Returns:
         np.ndarray: shape[n_features, 1] array of weights
+
     Notes:
         Pure Newton method (constant step size) is implemented.  Damped Newton
         method will be implimented in the future using backtracking algorithm (see
@@ -124,3 +130,4 @@ def newtonsmethod(X, y, gradient, hessian, alpha=0.01, iterations=10000,
         weights = weights + alpha * step_direction
         iteration += 1
     return weights
+
