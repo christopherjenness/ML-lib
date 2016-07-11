@@ -1,5 +1,5 @@
 """
-Prototype methods are unstructured methods that represent that training
+Prototype methods are unstructured methods that represent the training
 data with prototypes in the feature space.
 """
 import random

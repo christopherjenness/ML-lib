@@ -151,7 +151,7 @@ def k_fold_generator(data_length, folds=10, randomize=True):
         if current_position >= data_length:
             return
 
-class error(object):
+class Error(object):
     """
     Common error measures for model predictions when true answer is known
     """
