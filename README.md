@@ -9,9 +9,8 @@ It uses:
 
 It contains the following functionality:
 * **Supervised Learning:**
-  * Regression
-    * Linear Regression
-    * Logistic Regression
+  * Linear and Logistic regression
+    * Closed form, Gradient descent, and SGD solvers
     * Regularization
   * Support Vector Machines
     * Soft and hard margins
