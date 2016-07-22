@@ -1,6 +1,7 @@
 """
 Linear and logistic regression including regularization.
-Includes closed form and gradient descent solving.
+Currently, only L2 regularization is available.
+Includes closed form, gradient descent, and SGD solvers.
 """
 
 import numpy as np
