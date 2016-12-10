@@ -15,12 +15,12 @@ class KGaussian Mixture(object):
             samples (np.ndarray): Data of known target values
             values (np.ndarray): Known target values for data
             learned (bool): Keeps track of if model has been fit
-            k (int): number of Guasian components
+            c (int): number of Guasian components
             gaussians (dict): dictionary of gausians with {groupID: [mean, variance]}
         """
         self.samples = np.nan
         self.values = np.nan
-        self.k = k
+        self.c = c
         self.gaussians = {}
         self.learned = False
 
@@ -38,10 +38,36 @@ class KGaussian Mixture(object):
         self.learned = True
         return self
         
-    def _EM(self):
-        """
-        Expectation-maximization algorithm for fitting gaussian mixtures
-        """
+    def _expectations(point):
+        responsibilities = [0 for i in range(self.c)]
+        for k in range(self.c):
+            probability = multivariate_normal.pdf(point, mean = self.mus[k], cov = self.covs[k]) * self.priors[k]
+            responsibilities[k] = probability
+        responsibilities = [float(i)/sum(responsibilities) for i in responsibilities]
+        return responsibilities
+        
+    def _expectation():
+        return np.apply_along_axis(self.expectations, 1, self.X)
+        
+    def maximization():
+        # Maximize priors
+        priors = sum(self.responsibility_matrix)
+        priors = [float(i)/sum(priors) for i in priors]
+        
+        # Maximize means
+        mus = [0 for i in range(self.c)]
+        for k in range(self.c):
+            mus_k = sum(np.multiply(self.X, self.responsibility_matrix[:, k][:,np.newaxis]))
+            normalized_mus_k = mus_k / sum(self.responsibility_matrix[:,k])
+            mus[k] = normalized_mus_k
+        
+        # Maximize covariances
+        covs = [0 for i in range(self.c)]
+        for k in range(self.c):
+            covs[k] = np.cov(self.X.T, aweights=self.responsibility_matrix[:,k])
+        
+        return priors, mus, covs
+        
 
     def predict(self, x):
         """
