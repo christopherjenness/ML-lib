@@ -4,6 +4,7 @@ This is a machine learning library, made from scratch.
 
 It uses:
 * `numpy`: for handling matrices/vectors
+* `scipy`: for various mathematical operations
 * `cvxopt`: for convex optimization
 * `networkx`: for handling graphs in decision trees
 
@@ -35,6 +36,7 @@ It contains the following functionality:
 * **Unsupervised Learning**
   * K means/mediods clustering
   * PCA
+  * Gaussian Mixtures
 * **Model Selection and Validation**
 
 # Examples
