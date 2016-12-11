@@ -3,7 +3,7 @@ Gaussian Mixture Model
 """
 import random
 import numpy as np
-from scipy import stats
+from scipy.stats import multivariate_normal
 
 class GaussianMixture(object):
     """
@@ -38,51 +38,49 @@ class GaussianMixture(object):
         """
         self.samples = X
         n_samples = np.shape(X)[0]
-        n_features = np.shape(X)[1] 
+        n_features = np.shape(X)[1]
 
         #Initialize mus, covs, priors
         initial_indices = np.random.choice(range(n_samples), self.c, replace=False)
-        
+
         self.mus = X[initial_indices, :]
         self.covs = [np.identity(n_features) for i in range(self.c)]
         self.priors = [1.0/self.c for  i in range(self.c)]
         for iteration in range(iterations):
-            print iteration
             self.responsibility_matrix = self._expectation()
             self.priors, self.mus, self.covs = self._maximization()
         self.learned = True
         return self
-        
+
     def _expectations(self, point):
         responsibilities = [0 for i in range(self.c)]
         for k in range(self.c):
-            probability = multivariate_normal.pdf(point, mean = self.mus[k], cov = self.covs[k]) * self.priors[k]
+            probability = multivariate_normal.pdf(point, mean=self.mus[k], cov=self.covs[k]) * self.priors[k]
             responsibilities[k] = probability
         responsibilities = [float(i)/sum(responsibilities) for i in responsibilities]
         return responsibilities
-        
+
     def _expectation(self):
         return np.apply_along_axis(self._expectations, 1, self.samples)
-        
+
     def _maximization(self):
         # Maximize priors
         priors = sum(self.responsibility_matrix)
         priors = [float(i)/sum(priors) for i in priors]
-        
+
         # Maximize means
         mus = [0 for i in range(self.c)]
         for k in range(self.c):
-            mus_k = sum(np.multiply(self.samples, self.responsibility_matrix[:, k][:,np.newaxis]))
-            normalized_mus_k = mus_k / sum(self.responsibility_matrix[:,k])
+            mus_k = sum(np.multiply(self.samples, self.responsibility_matrix[:, k][:, np.newaxis]))
+            normalized_mus_k = mus_k / sum(self.responsibility_matrix[:, k])
             mus[k] = normalized_mus_k
-        
+
         # Maximize covariances
         covs = [0 for i in range(self.c)]
         for k in range(self.c):
-            covs[k] = np.cov(self.samples.T, aweights=self.responsibility_matrix[:,k])
-        
+            covs[k] = np.cov(self.samples.T, aweights=self.responsibility_matrix[:, k])
+
         return priors, mus, covs
-        
 
     def predict(self, x, probs=False):
         """
@@ -100,17 +98,13 @@ class GaussianMixture(object):
         """
         if not self.learned:
             raise NameError('Fit model first')
-            
+
         probabilities = [0 for i in range(self.c)]
         for k in range(self.c):
-            probability = multivariate_normal.pdf(x, mean = self.mus[k], cov = self.covs[k]) * self.priors[k]
+            probability = multivariate_normal.pdf(x, mean=self.mus[k], cov=self.covs[k]) * self.priors[k]
             probabilities[k] = probability
         max_class = np.argmax(probabilities)
         class_probs = [float(i)/sum(probabilities) for i in probabilities]
         if probs:
             return (max_class, class_probs)
         return np.argmax(probabilities)
-
-gmm = GaussianMixture(c=2)
-gmm.fit(X, iterations=20)
-gmm.predict([-15, 0], probs=True)
