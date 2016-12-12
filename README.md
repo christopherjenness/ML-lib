@@ -129,6 +129,10 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 ![SLiMG Image](https://i.sli.mg/eBRfDT.png)
 
+* Gaussian Mixture Models.  Assumes data are generated from a mixture of Gaussians and estimates those Gaussians via the EM algorithm.  The decision boundry between two estimated Gaussians is shown below.
+
+![SLiMG Image](https://i.sli.mg/E75MG3.png)
+
 * Principal Component Analysis (PCA) Transforms given data set into orthonormal basis, maximizing variance.
 
 ![SLiMG Image](https://i.sli.mg/45c9FN.png)
