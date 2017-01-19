@@ -12,9 +12,12 @@ class DisriminentAnalysis():
     LDA is performed when alpha == 1
     QDA is performed when alpha == 2
     """
-    def __init__(self, alpha=1):
+    def __init__(self, alpha=1.0):
         """
-        Attributes::
+        Args:
+            alpha (float): degree of regularization, in range(0, 1)
+        
+        Attributes:
             learned (bool): Keeps track of if RDA has been fit
             alpha (float): regularization parameter in range [0, 1]
                 When alpha == 1, LDA is performed, when alpha == 2, QDA is performed.
