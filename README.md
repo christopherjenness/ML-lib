@@ -28,6 +28,9 @@ It contains the following functionality:
     * Kernel density classification
   * Discriminant Analysis
     * LDA, QDA, RDA
+  * Naive Bayes Classification
+    * Gaussian
+    * Bernoulli
   * Prototype Methods
     * KNN
     * LVQ
