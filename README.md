@@ -4,6 +4,7 @@ This is a machine learning library, made from scratch.
 
 It uses:
 * `numpy`: for handling matrices/vectors
+* `scipy`: for various mathematical operations
 * `cvxopt`: for convex optimization
 * `networkx`: for handling graphs in decision trees
 
@@ -27,6 +28,9 @@ It contains the following functionality:
     * Kernel density classification
   * Discriminant Analysis
     * LDA, QDA, RDA
+  * Naive Bayes Classification
+    * Gaussian
+    * Bernoulli
   * Prototype Methods
     * KNN
     * LVQ
@@ -35,41 +39,42 @@ It contains the following functionality:
 * **Unsupervised Learning**
   * K means/mediods clustering
   * PCA
+  * Gaussian Mixtures
 * **Model Selection and Validation**
 
 # Examples
 Examples are shown in two dimensions for visualisation purposes, however, all methods can handle high dimensional data.
 ## Regression
 
-* Linear and logistic regression with regularization
+* Linear and logistic regression with regularization.  Closed form, gradient descent, SGD solvers.
 
-![Imgur](http://i.imgur.com/YJl0DfM.png)
+![Imgur](http://i.imgur.com/MDecAmb.png)
 
-![Imgur](http://i.imgur.com/eOarDws.png)
+![Imgur](http://i.imgur.com/dtihcxa.png)
 
 ## Support Vector Machines
 
 * Support vector machines maximize the margins between classes
 
-![Imgur](http://i.imgur.com/Uw4puZ1.jpg)
+![Imgur](http://i.imgur.com/wojgsUN.png)
 
 * Using kernels, support vector machines can produce non-linear decision boundries.  The RBF kernel is shown below
 
-![Imgur](http://i.imgur.com/dpSlL5z.jpg)
+![Imgur](http://i.imgur.com/crDrds0.png)
 
-![Imgur](http://i.imgur.com/9Fw80Ex.png)
+![Imgur](http://i.imgur.com/NJ2oKls.png)
 
 * An alternative learning algorithm, the perceptron, can linearly separate classes.  It does not maximize the margin, and is severely limited.
 
-![SLiMG Image](https://i.sli.mg/PI5jJl.png)
+![Imgur](http://i.imgur.com/0XtFnWk.png)
 
 ## Tree Methods
 
-* The library contains a large collection of tree methods, the basis of which are a decision trees for classification and regression
+* The library contains a large collection of tree methods, the basis of which are decision trees for classification and regression
 
-![Imgur](http://i.imgur.com/Mmkehxq.png)
+![Imgur](http://i.imgur.com/Mf3KRCl.png)
 
-These decision trees can be aggregated, and the library supports the following ensemble methods:
+These decision trees can be aggregated and the library supports the following ensemble methods:
 * AdaBoosting
 * Gradient Boosting
 * Random Forests
@@ -80,55 +85,59 @@ Kernel methods estimate the target function by fitting seperate functions at eac
 
 * Nadaraya–Watson estimation uses a local weighted average
 
-![Imgur](http://i.imgur.com/QptSDUu.png)
+![Imgur](http://i.imgur.com/EsqDMsS.png)
 
 * Local linear regression uses weighted least squares to locally fit an affine function to the data
 
-![Imgur](http://i.imgur.com/JM7VeQ2.png)
+![Imgur](http://i.imgur.com/1hiVYKw.png)
 
 * The library also supports kernel density estimation (KDE) of data which is used for kernel density classification
 
-![Imgur](http://i.imgur.com/VtAbSWs.png)
+![Imgur](http://i.imgur.com/7pGHjf0.png)
 
 ## Discriminant Analysis
 
 * Linear Discriminant Analysis creates decision boundries by assuming classes have the same covariance matrix.
 * LDA can only form linear boundries
 
-![SLiMG Image](https://i.sli.mg/ukWqRT.png)
+![Imgur](http://i.imgur.com/J9M3OBH.png)
 
 * Quadratic Discriminant Analysis creates deicion boundries by assuming classes have indepdent covariance matrices.
 * QDA can form non-linear boundries.
 
-![SLiMG Image](https://i.sli.mg/9jjM9f.png)
+![Imgur](http://i.imgur.com/QpWG7UJ.png)
 
 * Regularized Discriminant Analysis uses a combination of pooled and class covariance matrices to determine decision boundries.
 
-![SLiMG Image](https://i.sli.mg/dEeLC2.png)
+![Imgur](http://i.imgur.com/AQ7bYWU.png)
 
 ## Prototype Methods
 
 * K-nearest neighbors determines target values by averaging the k-nearest data points.  The library supports both regression and classification.
 
-![SLiMG Image](https://i.sli.mg/BGNG04.png)
+![Imgur](http://i.imgur.com/L7svJaA.png)
 
 * Learning vector quantization is a prototype method where prototypes are iteratively repeled by out-of-class data, and attracted to in-class data
 
-![SLiMG Image](https://i.sli.mg/Ll8yl6.png)
+![Imgur](http://i.imgur.com/tSC85zu.png)
 
 * Discriminant Adaptive Nearest Neighbors (DANN). DANN adaptively elongates neighborhoods along boundry regions.
 * Useful for high dimensional data.
 
-![SLiMG Image](https://i.sli.mg/RVveSp.png)
+![Imgur](http://i.imgur.com/jyiq2z8.png)
 
 ## Unsupervised Learning
 
 * K means and K mediods clustering.  Partitions data into K clusters.
 
-![SLiMG Image](https://i.sli.mg/eBRfDT.png)
+![Imgur](http://i.imgur.com/cwLxmyR.png)
+
+* Gaussian Mixture Models.  Assumes data are generated from a mixture of Gaussians and estimates those Gaussians via the EM algorithm.  The decision boundry between two estimated Gaussians is shown below.
+
+![Imgur](http://i.imgur.com/3c0RAmj.png)
 
 * Principal Component Analysis (PCA) Transforms given data set into orthonormal basis, maximizing variance.
 
-![SLiMG Image](https://i.sli.mg/45c9FN.png)
+![Imgur](http://i.imgur.com/un3ItuG.png)
 
 
