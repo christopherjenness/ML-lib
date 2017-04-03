@@ -52,6 +52,11 @@ class KernelMethods(object):
         if t > 1:
             return 0
         return (1 - t**3)**3
+    
+    @staticmethod gaussiankernel(x0, x, gamma):
+        """Gaussian Kernel"""
+        t = -np.linalg.norm(x - x0)**2 / 2(gamma**2)
+        return np.exp(t)
 
     def nadarayaaverage(self, x, kernel, gamma):
         """
@@ -103,7 +108,22 @@ class KernelMethods(object):
         x = np.column_stack((1, x))
         prediction = np.inner(x, solution)
         return float(prediction)
+        
+    def locallogisticregression(self, x, kernel, gamma):
+        """
+        Local linear regression eliminates bias at boundries
+        of domain.  It uses weighted least squares, determining
+        weights from the kernel.
 
+        Args:
+            x (np.array): Training data of shape[1, n_features]
+                note: currently only single samples can be predicted
+                at a time.
+            kernel (function): {epanechinokovkernel, tricubekernel}
+                kernel used to weight training examples
+            gamma (float): parameter used for kernel
+        """
+        
     @staticmethod
     def kerneldensityestimate(samples, x, gamma):
         """
