@@ -25,6 +25,7 @@ It contains the following functionality:
   * Kernel Methods
     * Nadaraya average
     * Local linear regression
+    * Local logistic regression
     * Kernel density classification
   * Discriminant Analysis
     * LDA, QDA, RDA
