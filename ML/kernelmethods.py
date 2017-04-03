@@ -5,6 +5,7 @@ functions at each point using local smoothing of training data.
 
 import numpy as np
 
+
 class KernelMethods(object):
     """
     Kernel methods for classification and estimation
@@ -53,9 +54,10 @@ class KernelMethods(object):
             return 0
         return (1 - t**3)**3
     
-    @staticmethod gaussiankernel(x0, x, gamma):
+    @staticmethod 
+    def gaussiankernel(x0, x, gamma):
         """Gaussian Kernel"""
-        t = -np.linalg.norm(x - x0)**2 / 2(gamma**2)
+        t = -np.linalg.norm(x - x0)**2 / 2 * (gamma**2)
         return np.exp(t)
 
     def nadarayaaverage(self, x, kernel, gamma):
@@ -108,8 +110,29 @@ class KernelMethods(object):
         x = np.column_stack((1, x))
         prediction = np.inner(x, solution)
         return float(prediction)
+
+    @staticmethod
+    def logistic_function(logistic_input):
+        """
+        Args:
+            logistic_input (np.ndarray): array of shape[n_samples, 1]
+
+        Returns:
+            np.ndarray: shape[n_samples, 1], logistic transformation of data
+        """
+        return 1 / (1 + np.exp(-logistic_input))
         
-    def locallogisticregression(self, x, kernel, gamma):
+    def locallogisticHessian(self, theta, weights, reg_param):
+        D = []
+        for row in range(np.shape(self.X)[0]):
+            D.append(weights[row] * 
+                     self.logistic_function(np.dot(self.X[row,:], np.transpose(theta))) * 
+                     (1 -  self.logistic_function(np.dot(self.X[row,:], np.transpose(theta)))))
+        D = np.diag(D)
+        hessian = np.matmul(np.matmul(self.X.T, D), self.X) - np.identity(np.shape(self.X)[1]) * reg_param
+        return hessian
+        
+    def locallogisticregression(self, x, kernel, gamma, reg_param, iterations=10, alpha = 0.001):
         """
         Local linear regression eliminates bias at boundries
         of domain.  It uses weighted least squares, determining
@@ -123,7 +146,26 @@ class KernelMethods(object):
                 kernel used to weight training examples
             gamma (float): parameter used for kernel
         """
-        
+        W = []
+        for row in range(np.shape(self.X)[0]):
+            W.append(kernel(self.X[row, :], x, gamma))
+        # Newtons Method
+        theta = np.zeros(np.shape(X)[1]) + 0.0001
+        iteration = 0
+        while iteration < iterations:
+            hessian = self.locallogisticHessian(theta, W, reg_param)
+            z = []
+            for row in range(np.shape(self.X)[0]):
+                z.append(W[row] * self.y[row] - self.logistic_function(np.dot(self.X[row,:], theta)))
+            gradient = np.matmul(self.X.T, z) - (reg_param * theta)
+            step_direction = -np.dot(np.linalg.pinv(hessian), gradient)
+            theta = theta + alpha * step_direction
+            iteration += 1
+        prediction = self.logistic_function(np.dot(x, theta))
+        return prediction
+
+
+
     @staticmethod
     def kerneldensityestimate(samples, x, gamma):
         """
@@ -144,9 +186,7 @@ class KernelMethods(object):
         estimate = 0
         for row in range(np.shape(samples)[0]):
             x_i = np.array(x) - samples[row, :]
-            print(x_i)
             gaussiankernel = (1/(2*np.pi)**0.5 * gamma**2)**N * np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2)) 
-            print(gaussiankernel)
             estimate += gaussiankernel
         estimate /= N
         return estimate
