@@ -3,6 +3,7 @@ Exact principal component analysis (PCA)
 """
 import numpy as np
 
+
 class PCA(object):
     """
     Exact principal component analysis (PCA).  Transforms given data set
@@ -14,9 +15,12 @@ class PCA(object):
         """
         Attributes:
             X (np.ndarray): Training data of shape[n_samples, n_features]
-            X_normalized (np.ndarray): Mean normalized data of shape[n_samples, n_features]
-            transformed_X (np.ndarray): Transformed data of shape[n_samples, n_features]
-                This data has contains all principal components, in order of variance explained
+            X_normalized (np.ndarray): Mean normalized data of
+                shape [n_samples, n_features]
+            transformed_X (np.ndarray): Transformed data of
+                shape [n_samples, n_features]
+                This data has contains all principal components,
+                    in order of variance explained
         """
         self.X = None
         self.X_normalized = None
@@ -30,13 +34,13 @@ class PCA(object):
         """
         self.X = X
         self.mean_normalize()
-        cov_matrix = (np.dot(self.X_normalized.T, self.X_normalized)) * 1/(np.shape(self.X)[0] - 1)
+        cov_matrix = (np.dot(self.X_normalized.T, self.X_normalized)) * \
+                      1 / (np.shape(self.X)[0] - 1)
         eigen_vals, eigen_vectors = np.linalg.eig(cov_matrix)
         eigen_vectors = eigen_vectors.T
         # Sort the eigen vectors
         eigen_order = np.argsort(eigen_vals)
         P = eigen_vectors[:, eigen_order]
-        print(cov_matrix, P)
         # Project X onto PC
         self.transformed_X = (np.dot(P, X.T)).T
         return self
