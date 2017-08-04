@@ -8,16 +8,35 @@ import numpy as np
 from descentmethods import gradientdescent
 
 
-class LinearRegression:
-    """Class for implimenting Linear Regression"""
+class BaseRegression:
+    """Base Class for implimenting Linear Regression"""
     def __init__(self):
         """
         Attributes::
-            learned (bool): Keeps track of if Linear Regression has been fit
-            weights (np.ndarray): vector of weights for linear regression
+            _learned (bool): Keeps track of if Linear Regression has been fit
+            _weights (np.ndarray): vector of weights for linear regression
         """
-        self.learned = False
-        self.weights = np.NaN
+        self._learned = False
+        self._weights = np.NaN
+
+    @property
+    def learned(self):
+        return self._learned
+
+    @property
+    def weights(self):
+        return self._weights
+
+    @learned.setter
+    def learned(self, value):
+        self._learned = value
+
+    @weights.setter
+    def weights(self, value):
+        self._weights = value
+
+class LinearRegression(BaseRegression):
+    """Class for implimenting Linear Regression"""
 
     def predict(self, X):
         """
@@ -88,16 +107,8 @@ class LinearRegression:
         return self
 
 
-class LogisticRegression:
+class LogisticRegression(BaseRegression):
     """Logistic Regression classifier with gradient descent implementation"""
-    def __init__(self):
-        """
-        Attributes:
-            learned (bool): Keeps track of if model has been fit
-            weights (np.ndarray): vector of weights for linear separation
-        """
-        self.learned = False
-        self.weights = np.NaN
 
     @staticmethod
     def logistic_function(logistic_input):
