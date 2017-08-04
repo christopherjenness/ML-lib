@@ -63,18 +63,6 @@ class GaussianNaiveBayes(NaiveBayes):
     Gaussian Naive Bayes Classifier
     """
 
-    def __init__(self):
-        """
-        Attributes (inherited from parent class):
-            learned (bool): Keeps track of if classifier has been fit
-            class_names (np.ndarray): array of class names. [0, 1] for example.
-            class_priors (dict): prior probability of each class.
-                determined via fraction of training samples in each class
-            class_parameters (dict): dict of parameters for each class
-
-        """
-        super().__init__()
-
     def fit(self, X, y):
         """
         Fits Naive Bayes classifier
@@ -89,7 +77,7 @@ class GaussianNaiveBayes(NaiveBayes):
         self.class_names = list(np.unique(y))
         for class_name in self.class_names:
             # Compute class priors
-            class_prior = float(len(y[y == class_name]) / n_samples)
+            class_prior = float(len(y[y == class_name])) / n_samples
             self.class_priors[class_name] = class_prior
 
             # Compute class mean and variance
@@ -149,18 +137,6 @@ class BernoulliNaiveBayes(NaiveBayes):
     Bernoulli Naive Bayes Classifier
     """
 
-    def __init__(self):
-        """
-        Attributes (inherited from parent class):
-            learned (bool): Keeps track of if classifier has been fit
-            class_names (np.ndarray): array of class names. [0, 1] for example.
-            class_priors (dict): prior probability of each class.
-                determined via fraction of training samples in each class
-            class_parameters (dict): dict of parameters for each class
-
-        """
-        super().__init__()
-
     def fit(self, X, y):
         """
         Fits Naive Bayes classifier
@@ -175,7 +151,7 @@ class BernoulliNaiveBayes(NaiveBayes):
         self.class_names = list(np.unique(y))
         for class_name in self.class_names:
             # Compute class priors
-            class_prior = float(len(y[y == class_name]) / n_samples)
+            class_prior = float(len(y[y == class_name])) / n_samples
             self.class_priors[class_name] = class_prior
 
             # Compute class mean and variance
