@@ -80,9 +80,8 @@ class KernelMethods(object):
         numerator = 0
         denominator = 0
         for row in range(np.shape(self.X)[0]):
-            numerator += kernel(self.X[row, :], x, gamma) * self.y[row]
-            denominator += kernel(self.X[row, :], x, gamma)
-            print(numerator, denominator)
+            numerator += kernel(self.X[row], x, gamma) * self.y[row]
+            denominator += kernel(self.X[row], x, gamma)
         return numerator / denominator
 
     def locallinearregression(self, x, kernel, gamma):
@@ -101,7 +100,7 @@ class KernelMethods(object):
         """
         W = []
         for row in range(np.shape(self.X)[0]):
-            W.append(kernel(self.X[row, :], x, gamma))
+            W.append(kernel(self.X[row], x, gamma))
         W = np.diag(W)
         # Calculate solution using closed form solution
         solution_a = np.linalg.pinv(self.X_intercept.T.dot(W)
@@ -139,10 +138,10 @@ class KernelMethods(object):
                             np.identity(np.shape(self.X)[1]) * reg_param
         return hessian
 
-    def locallogisticregression(self, x, kernel, gamma, reg_param,
+    def locallogisticregression(self, x, kernel, gamma, reg_param=0,
                                 iterations=10, alpha=0.001):
         """
-        Local linear regression eliminates bias at boundries
+        Local linear logistic eliminates bias at boundries
         of domain.  It uses weighted least squares, determining
         weights from the kernel.
 
@@ -153,10 +152,14 @@ class KernelMethods(object):
             kernel (function): {epanechinokovkernel, tricubekernel}
                 kernel used to weight training examples
             gamma (float): parameter used for kernel
+            reg_param (float): L2 regularization weight
+                if 0, no regulatization is prefermed
+            iterations (int): number of gradient descent steps to take
+            alpha (float): depth of each gradient descent step to take
         """
         W = []
         for row in range(np.shape(self.X)[0]):
-            W.append(kernel(self.X[row, :], x, gamma))
+            W.append(kernel(self.X[row], x, gamma))
         # Newtons Method
         theta = np.zeros(np.shape(self.X)[1]) + 0.0001
         iteration = 0
@@ -172,25 +175,24 @@ class KernelMethods(object):
             step_direction = -np.dot(np.linalg.pinv(hessian), gradient)
             theta = theta + alpha * step_direction
             iteration += 1
+        print('****', theta, x, np.dot(x, theta))
         prediction = self.logistic_function(np.dot(x, theta))
         return prediction
 
-    @staticmethod
-    def kerneldensityestimate(samples, x, gamma):
+    def kerneldensityestimate(self, x, gamma):
         """
         Provides a gaussian kernel density at point given a sample.
         If the KDE of the entire sample space is required, this method can
         easily be augmented.
 
         Args:
-            samples (np.ndarray): Training data of shape[n_samples, n_features]
             x (np.array): Test data of shape [n_features]
             gamma: gaussian width from which to sample
 
         Returns:
             float: KDE estimate at point x, given samples
         """
-        samples = np.matrix(samples)
+        samples = np.matrix(self.X)
         N = len(x)
         estimate = 0
         for row in range(np.shape(samples)[0]):
@@ -222,12 +224,8 @@ class KernelMethods(object):
         class_probabilities = {}
         for i in class_names:
             class_indices = np.where(self.y == i)[0]
-            try:
-                class_samples = self.X[class_indices, :]
-            except:
-                class_samples = self.X[class_indices]
             class_prior = float(len(class_indices)) / len(self.y)
-            kde = self.kerneldensityestimate(class_samples, x, gamma)
+            kde = self.kerneldensityestimate(x, gamma)
             class_probabilities[i] = kde * class_prior
         prediction = max(class_probabilities, key=class_probabilities.get)
         return prediction
