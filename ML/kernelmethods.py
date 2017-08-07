@@ -14,7 +14,8 @@ class KernelMethods(object):
         """
         Attributes:
             X (np.ndarray): Training data of shape[n_samples, n_features]
-            X_intercept (np.ndarray): Training data of shape[n_samples, n_features + 1]
+            X_intercept (np.ndarray): Training data of shape
+                [n_samples, n_features + 1]
                 Adds a column of ones to training data
             y (np.ndarray): Target values of shape[n_samples, 1]
             learned (bool): Keeps track of if model has been fit
@@ -53,8 +54,8 @@ class KernelMethods(object):
         if t > 1:
             return 0
         return (1 - t**3)**3
-    
-    @staticmethod 
+
+    @staticmethod
     def gaussiankernel(x0, x, gamma):
         """Gaussian Kernel"""
         t = -np.linalg.norm(x - x0)**2 / 2 * (gamma**2)
@@ -102,8 +103,9 @@ class KernelMethods(object):
         for row in range(np.shape(self.X)[0]):
             W.append(kernel(self.X[row, :], x, gamma))
         W = np.diag(W)
-        #Calculate solution using closed form solution
-        solution_a = np.linalg.pinv(self.X_intercept.T.dot(W).dot(self.X_intercept))
+        # Calculate solution using closed form solution
+        solution_a = np.linalg.pinv(self.X_intercept.T.dot(W)
+                                    .dot(self.X_intercept))
         solution_b = self.X_intercept.T.dot(W).dot(self.y)
         solution = np.dot(solution_a, solution_b)
         x = np.asarray(x)
@@ -121,18 +123,24 @@ class KernelMethods(object):
             np.ndarray: shape[n_samples, 1], logistic transformation of data
         """
         return 1 / (1 + np.exp(-logistic_input))
-        
+
     def locallogisticHessian(self, theta, weights, reg_param):
         D = []
         for row in range(np.shape(self.X)[0]):
-            D.append(weights[row] * 
-                     self.logistic_function(np.dot(self.X[row,:], np.transpose(theta))) * 
-                     (1 -  self.logistic_function(np.dot(self.X[row,:], np.transpose(theta)))))
+            D.append(weights[row] *
+                     self.logistic_function(np.dot(self.X[row, :],
+                                                   np.transpose(theta))) *
+                     (1 -
+                      self.logistic_function(np.dot(self.X[row, :],
+                                                    np.transpose(theta)))))
         D = np.diag(D)
-        hessian = np.matmul(np.matmul(self.X.T, D), self.X) - np.identity(np.shape(self.X)[1]) * reg_param
+        hessian = np.matmul(np.matmul(self.X.T, D),
+                            self.X) - \
+                            np.identity(np.shape(self.X)[1]) * reg_param
         return hessian
-        
-    def locallogisticregression(self, x, kernel, gamma, reg_param, iterations=10, alpha = 0.001):
+
+    def locallogisticregression(self, x, kernel, gamma, reg_param,
+                                iterations=10, alpha=0.001):
         """
         Local linear regression eliminates bias at boundries
         of domain.  It uses weighted least squares, determining
@@ -150,21 +158,22 @@ class KernelMethods(object):
         for row in range(np.shape(self.X)[0]):
             W.append(kernel(self.X[row, :], x, gamma))
         # Newtons Method
-        theta = np.zeros(np.shape(X)[1]) + 0.0001
+        theta = np.zeros(np.shape(self.X)[1]) + 0.0001
         iteration = 0
         while iteration < iterations:
             hessian = self.locallogisticHessian(theta, W, reg_param)
             z = []
             for row in range(np.shape(self.X)[0]):
-                z.append(W[row] * self.y[row] - self.logistic_function(np.dot(self.X[row,:], theta)))
+                z.append(W[row] *
+                         self.y[row] -
+                         self.logistic_function(np.dot(self.X[row, :],
+                                                       theta)))
             gradient = np.matmul(self.X.T, z) - (reg_param * theta)
             step_direction = -np.dot(np.linalg.pinv(hessian), gradient)
             theta = theta + alpha * step_direction
             iteration += 1
         prediction = self.logistic_function(np.dot(x, theta))
         return prediction
-
-
 
     @staticmethod
     def kerneldensityestimate(samples, x, gamma):
@@ -186,7 +195,8 @@ class KernelMethods(object):
         estimate = 0
         for row in range(np.shape(samples)[0]):
             x_i = np.array(x) - samples[row, :]
-            gaussiankernel = (1/(2*np.pi)**0.5 * gamma**2)**N * np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2)) 
+            gaussiankernel = (1/(2*np.pi)**0.5 * gamma**2)**N * \
+                             np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2))
             estimate += gaussiankernel
         estimate /= N
         return estimate
