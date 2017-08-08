@@ -1,9 +1,10 @@
 """
 Gaussian Mixture Model
 """
-import random
+
 import numpy as np
 from scipy.stats import multivariate_normal
+
 
 class GaussianMixture(object):
     """
@@ -16,7 +17,8 @@ class GaussianMixture(object):
             values (np.ndarray): Known target values for data
             learned (bool): Keeps track of if model has been fit
             c (int): number of Guasian components
-            gaussians (dict): dictionary of gausians with {groupID: [mean, variance]}
+            gaussians (dict): dictionary of gausians with
+                {groupID: [mean, variance]}
         """
         self.samples = np.nan
         self.values = np.nan
@@ -28,7 +30,7 @@ class GaussianMixture(object):
         self.gaussians = {}
         self.learned = False
 
-    def fit(self, X, iterations=1000):
+    def fit(self, X, iterations=50):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
@@ -40,12 +42,13 @@ class GaussianMixture(object):
         n_samples = np.shape(X)[0]
         n_features = np.shape(X)[1]
 
-        #Initialize mus, covs, priors
-        initial_indices = np.random.choice(range(n_samples), self.c, replace=False)
+        # Initialize mus, covs, priors
+        initial_indices = np.random.choice(range(n_samples), self.c,
+                                           replace=False)
 
         self.mus = X[initial_indices, :]
         self.covs = [np.identity(n_features) for i in range(self.c)]
-        self.priors = [1.0/self.c for  i in range(self.c)]
+        self.priors = [1.0/self.c for i in range(self.c)]
         for iteration in range(iterations):
             self.responsibility_matrix = self._expectation()
             self.priors, self.mus, self.covs = self._maximization()
@@ -55,9 +58,13 @@ class GaussianMixture(object):
     def _expectations(self, point):
         responsibilities = [0 for i in range(self.c)]
         for k in range(self.c):
-            probability = multivariate_normal.pdf(point, mean=self.mus[k], cov=self.covs[k]) * self.priors[k]
+            probability = multivariate_normal.pdf(point,
+                                                  mean=self.mus[k],
+                                                  cov=self.covs[k]) * \
+                                                      self.priors[k]
             responsibilities[k] = probability
-        responsibilities = [float(i)/sum(responsibilities) for i in responsibilities]
+        responsibilities = [float(i) / sum(responsibilities)
+                            for i in responsibilities]
         return responsibilities
 
     def _expectation(self):
@@ -71,14 +78,16 @@ class GaussianMixture(object):
         # Maximize means
         mus = [0 for i in range(self.c)]
         for k in range(self.c):
-            mus_k = sum(np.multiply(self.samples, self.responsibility_matrix[:, k][:, np.newaxis]))
+            mus_k = sum(np.multiply(self.samples,
+                                    self.responsibility_matrix[:, k][:, np.newaxis]))
             normalized_mus_k = mus_k / sum(self.responsibility_matrix[:, k])
             mus[k] = normalized_mus_k
 
         # Maximize covariances
         covs = [0 for i in range(self.c)]
         for k in range(self.c):
-            covs[k] = np.cov(self.samples.T, aweights=self.responsibility_matrix[:, k])
+            covs[k] = np.cov(self.samples.T,
+                             aweights=self.responsibility_matrix[:, k])
 
         return priors, mus, covs
 
@@ -101,7 +110,10 @@ class GaussianMixture(object):
 
         probabilities = [0 for i in range(self.c)]
         for k in range(self.c):
-            probability = multivariate_normal.pdf(x, mean=self.mus[k], cov=self.covs[k]) * self.priors[k]
+            probability = multivariate_normal.pdf(x,
+                                                  mean=self.mus[k],
+                                                  cov=self.covs[k]) * \
+                                                  self.priors[k]
             probabilities[k] = probability
         max_class = np.argmax(probabilities)
         class_probs = [float(i)/sum(probabilities) for i in probabilities]
