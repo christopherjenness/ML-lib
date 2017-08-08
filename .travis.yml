@@ -7,7 +7,8 @@ install:
     - pip install coveralls
     - pip install pytest
     - pip install pytest-cov
+    - python setup.py develop
 # command to run tests
-script: pytest tests/ --cov=.
+script: python -m pytest tests/ --cov=.
 after_success:
     - coveralls
