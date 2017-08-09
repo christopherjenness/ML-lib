@@ -13,28 +13,27 @@ class GaussianMixture(object):
     def __init__(self, c=2):
         """
         Attributes:
-            samples (np.ndarray): Data of known target values
-            values (np.ndarray): Known target values for data
-            learned (bool): Keeps track of if model has been fit
+            samples (np.ndarray): Data to determine gaussian mixtures for
+            mus (dict): class means {class: [mean1, mean2, ...]}
+            covs (dict): class covariance matrices {class :[COV]}
+            priors (dict): class prior probabilities {class: prior}
+            responsibility_matrix (dict): responsibility matrix in EM
             c (int): number of Guasian components
-            gaussians (dict): dictionary of gausians with
-                {groupID: [mean, variance]}
+            learned (bool): Keeps track of if model has been fit
         """
         self.samples = np.nan
-        self.values = np.nan
         self.mus = np.nan
         self.covs = np.nan
         self.priors = np.nan
         self.responsibility_matrix = np.nan
         self.c = c
-        self.gaussians = {}
         self.learned = False
 
     def fit(self, X, iterations=50):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
-            y (np.ndarray): Target values of shape[n_samples, 1]
+            iterations (int): number of EM interations until stopping
 
         Returns: an instance of self
         """
