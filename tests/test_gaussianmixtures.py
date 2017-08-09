@@ -1,8 +1,6 @@
 import ML.gaussianmixture as gaussianmixture
-import ML.regression as regression
 import data
 import numpy as np
-import pytest
 
 
 def test_GM_init():
@@ -10,6 +8,7 @@ def test_GM_init():
     GM_five = gaussianmixture.GaussianMixture(c=5)
     assert GM.c == 2
     assert GM_five.c == 5
+
 
 def test_GM_fit():
     X, y = data.categorical_2Dmatrix_data_big()
