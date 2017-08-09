@@ -27,6 +27,16 @@ def tall_matrix_data():
                     [0.98, 2.1, 3]])
     return x
 
+
+@pytest.fixture
+def tall_matrix_data_2():
+    x = np.array([[1, 2, 3],
+                    [1.1, 2.05, 3],
+                    [0.99, 2, 3],
+                    [0.98, 2.1, 3]])
+    y = np.array(range(4))
+    return x, y
+
 @pytest.fixture
 def categorical_2Dmatrix_data():
     x = np.array([[1, 2],
@@ -39,6 +49,7 @@ def categorical_2Dmatrix_data():
     return x, y
 
 
+@pytest.fixture
 def categorical_2Dmatrix_data_big():
     x = np.array([[1.1, 1.5],
                   [1, 2],
