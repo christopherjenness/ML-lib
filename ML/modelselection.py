@@ -3,19 +3,22 @@
 import numpy as np
 import itertools
 
+
 def best_subset(X, y, model, parameters, error_measure, direction='forward'):
     """
-    Function for selecting a subset of parametrs from X, which minimize the in sample
-    error measure.  Algorithm acts in a greedy manner, either adding one parameter at
-    a time (forward), or removing one at a time (backward).
+    Function for selecting a subset of parametrs from X, which
+    minimize the in sample error measure.  Algorithm acts in a
+    greedy manner, either adding one parameter at a time (forward),
+    or removing one at a time (backward).
 
     Args:
         X (np.ndarray): Training data of shape[n_samples, n_features]
         y (np.ndarray): Target values of shape[n_samples, 1]
-        model (class): Machine Learning model containing fit and predict methods
-            For example LinearRegression from linearregression module
-        error_measure (function): function(y, predictions) for measuring the model fit.
-            For example, MSE error from error module
+        model (class): Machine Learning model containing fit and predict
+            methods. For example LinearRegression from linearregression
+            module
+        error_measure (function): function(y, predictions) for
+            measuring the model fit. For example, MSE error from error module
         parameters (int): number of parameters in subset to return
         direction: {'forward', 'backward', 'combinatorial'}
             forward adds one parameter at a time in a greedy manner
@@ -24,13 +27,14 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                 combinatorial is not reccomended for large number of parameters
 
     Returns:
-        np.ndarray: shape[parameters, 1], best subset of parameters that minimize in sample error
+        np.ndarray: shape[parameters, 1], best subset of parameters
+            that minimize in sample error.
     """
 
     n_features = np.shape(X)[1]
-    n_samples = np.shape(X)[0]
     if direction not in ['forward', 'backward', 'combinatorial']:
-        raise  NameError("direction must be 'forward', 'backward', or 'combinatorial'")
+        raise NameError("direction must be 'forward', 'backward', or "
+                        "'combinatorial'")
     if direction == 'forward':
         param_count = 0
         current_params = []
@@ -45,12 +49,15 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                 if feature not in current_params:
                     test_column = X[:, feature]
                     if len(current_params) > 0:
-                        test_array = np.column_stack((X[:, current_params], test_column))
+                        test_array = np.column_stack((X[:,
+                                                        current_params],
+                                                      test_column))
                     else:
                         test_array = test_column
                     classifier = model()
                     classifier.fit(test_array, y)
-                    test_error = error_measure(y, classifier.predict(test_array))
+                    test_error = error_measure(y,
+                                               classifier.predict(test_array))
                     if test_error < best_error:
                         best_param, best_error = feature, test_error
             current_params.append(best_param)
@@ -69,7 +76,8 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                     test_array = np.delete(X, feature, 1)
                     classifier = model()
                     classifier.fit(test_array, y)
-                    test_error = error_measure(y, classifier.predict(test_array))
+                    test_error = error_measure(y,
+                                               classifier.predict(test_array))
                     if test_error < worst_error:
                         worst_param, worst_error = feature, test_error
             current_params.remove(worst_param)
@@ -87,6 +95,7 @@ def best_subset(X, y, model, parameters, error_measure, direction='forward'):
                     best_params, best_error = param_subset, test_error
         current_params = list(best_params)
     return sorted(current_params)
+
 
 def test_train_splitter(X, y, test_fraction=0.2, randomize=True):
     """
@@ -122,13 +131,16 @@ def test_train_splitter(X, y, test_fraction=0.2, randomize=True):
     y_test = aggregate[0:split_index, 2]
     return X_train, X_test, y_train, y_test
 
+
 def k_fold_generator(data_length, folds=10, randomize=True):
     """
-    generator of indices to split data of given length into test and train sets.
+    generator of indices to split data of given length into test and
+        train sets.
     Useful for K-fold cross validation.
 
     Args:
-        data_length (int): Length of data to be split into test and training sets
+        data_length (int): Length of data to be split into test and
+            training sets
         folds (int): number of splits to make in the data.
         randomize (bool): Option to shuffle indices prior to splitting
 
@@ -144,12 +156,14 @@ def k_fold_generator(data_length, folds=10, randomize=True):
     current_position = 0
     while True:
         next_position = current_position + step_size
-        train_indices = np.append(indices[:current_position], indices[next_position:])
+        train_indices = np.append(indices[:current_position],
+                                  indices[next_position:])
         test_indices = indices[current_position: next_position]
         yield train_indices, test_indices
         current_position += step_size
         if current_position >= data_length:
             return
+
 
 class Error(object):
     """
@@ -172,8 +186,8 @@ class Error(object):
     @staticmethod
     def cross_entropy_error(y, predictions):
         """Cross Entropy Error"""
-        n_samples = len(y)
-        predictions[predictions==0] = 0.00000001
-        predictions[predictions==1] = 0.99999999
-        cross_entropy_errors = -y * np.log(predictions) - (1 - y) * np.log(1 - predictions)
+        predictions[predictions == 0] = 0.00000001
+        predictions[predictions == 1] = 0.99999999
+        cross_entropy_errors = -y * np.log(predictions) - (1 - y) * \
+            np.log(1 - predictions)
         return np.sum(cross_entropy_errors)
