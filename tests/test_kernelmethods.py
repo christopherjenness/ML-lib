@@ -75,8 +75,7 @@ def test_kerneldensityestimate():
     x, y = data.continuous_data_complicated()
     km = kernelmethods.KernelMethods()
     km.fit(x, y)
-    kde = km.kerneldensityestimate([5], 0.001)
-    assert kde != 0
+    kde = km.kerneldensityestimate([5], 1)
     np.testing.assert_almost_equal(kde, 0)
 
 
