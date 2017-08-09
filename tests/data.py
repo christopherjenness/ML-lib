@@ -10,7 +10,7 @@ def continuous_data():
 @pytest.fixture
 def continuous_data_complicated():
     x = np.array(range(10))
-    y = np.array(range(5) + [6, 6.1, 6.2, 7, 7.1])
+    y = np.array(list(range(5)) + [6, 6.1, 6.2, 7, 7.1])
     return x, y
 
 @pytest.fixture
@@ -37,6 +37,23 @@ def categorical_2Dmatrix_data():
                   [8, 8]])
     y = np.array([0, 0, 0, 0, 1, 1])
     return x, y
+
+
+def categorical_2Dmatrix_data_big():
+    x = np.array([[1.1, 1.5],
+                  [1, 2],
+                  [3, 3],
+                  [5, 2],
+                  [1, 4],
+                  [9, 6],
+                  [8, 8],
+                  [8.1, 9],
+                  [7.7, 7.1],
+                  [6, 12],
+                  [10, 6]])
+    y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1])
+    return x, y
+
 
 @pytest.fixture
 def categorical_2Dmatrix_bernoulli_data():
