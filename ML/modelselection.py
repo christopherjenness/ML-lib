@@ -4,7 +4,8 @@ import numpy as np
 import itertools
 
 
-def best_subset(X, y, model, parameters, error_measure, direction='forward'):
+def best_subset(X, y, model, parameters, error_measure,
+                direction='forward'):
     """
     Function for selecting a subset of parametrs from X, which
     minimize the in sample error measure.  Algorithm acts in a
@@ -181,13 +182,13 @@ class Error(object):
         """Average classiication error"""
         n_samples = len(y)
         correct_classifications = np.equal(y, predictions)
-        return (n_samples - correct_classifications.sum()) / n_samples
+        return float(n_samples - correct_classifications.sum()) / n_samples
 
     @staticmethod
     def cross_entropy_error(y, predictions):
         """Cross Entropy Error"""
-        predictions[predictions == 0] = 0.00000001
-        predictions[predictions == 1] = 0.99999999
+        predictions[predictions == 0] = 0.001
+        predictions[predictions == 1] = 0.999
         cross_entropy_errors = -y * np.log(predictions) - (1 - y) * \
             np.log(1 - predictions)
         return np.sum(cross_entropy_errors)
