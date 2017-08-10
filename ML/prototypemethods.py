@@ -6,6 +6,7 @@ import random
 import numpy as np
 from scipy import stats
 
+
 class KNearestNeighbor(object):
     """
     K nearest neighbors classification and regression
@@ -43,7 +44,8 @@ class KNearestNeighbor(object):
             k (int): number of nearest neighbor to consider
             model: {'regression', 'classification'}
                 K nearest neighbor classification or regression.
-                Choice most likely depends on the type of data the model was fit with.
+                Choice most likely depends on the type of data the
+                model was fit with.
 
         Returns:
             float: Returns predicted value
@@ -55,14 +57,16 @@ class KNearestNeighbor(object):
             raise NameError('Fit model first')
         distances = np.array([])
         for row in range(np.shape(self.samples)[0]):
-            #add distance from x to sample row to distances vector
-            distances = np.append(distances, np.linalg.norm(x - self.samples[row, :]))
+            # Add distance from x to sample row to distances vector
+            distances = np.append(distances,
+                                  np.linalg.norm(x - self.samples[row, :]))
             nearestneighbors = distances.argsort()[:k]
         if model == 'regression':
             prediction = self.values[nearestneighbors].mean()
         if model == 'classification':
             prediction = stats.mode(self.values[nearestneighbors]).mode
         return prediction
+
 
 class KMeans(object):
     """
@@ -83,37 +87,38 @@ class KMeans(object):
 
     def fit(self, X, clusters=2, max_iter=1000):
         """
-        Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
+        Randomly initializes clusers, uses LLyod's algorithm to find
+        optimal clusters.
 
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             clusters (int): number of clusters to determine
-            max_iter (int): maximum number of iterations through Lloyd's algorithm
+            max_iter (int): maximum number of iterations through
+                Lloyd's algorithm
 
         Returns: an instance of self
         """
         self.samples = X
         n_samples, n_features = np.shape(X)
-        #Initialize centers to random data points
+        # Initialize centers to random data points
         self.cluster_centers = X[random.sample(range(n_samples), clusters), :]
-        #Initialize sample assignmnets to zero
+        # Initialize sample assignmnets to zero
         self.sample_assignments = np.zeros(n_samples)
         iteration = 1
         while iteration < max_iter:
-            print(iteration)
-            #Assign each point to nearest center
+            # Assign each point to nearest center
             for sample in range(n_samples):
                 distances = np.array([])
                 for row in range(clusters):
-                    current_distance = np.linalg.norm(self.cluster_centers[row, :] - self.samples[sample, :])
+                    current_distance = np.linalg.norm(self.cluster_centers[row, :]
+                                                      - self.samples[sample, :])
                     distances = np.append(distances, current_distance)
                 nearest_center = distances.argsort()[0]
                 self.sample_assignments[sample] = nearest_center
-            #Update cluster centers to cluster mean
+            # Update cluster centers to cluster mean
             new_centers = np.zeros((clusters, n_features))
             for cluster in range(clusters):
                 samples_in_cluster = np.where(self.sample_assignments == cluster)[0]
-                print(samples_in_cluster)
                 new_centers[cluster, :] = self.samples[samples_in_cluster, :].mean(axis=0)
             if (self.cluster_centers == new_centers).all():
                 break
@@ -139,11 +144,13 @@ class KMeans(object):
             raise NameError('Fit model first')
         distances = np.array([])
         for row in range(np.shape(self.cluster_centers)[0]):
-            #append distance from x to cluster_centers row into distances vector
-            distances = np.append(distances, np.linalg.norm(x - self.cluster_centers[row, :]))
+            # Append distance from x to cluster_centers row into distances
+            distances = np.append(distances,
+                                  np.linalg.norm(x - self.cluster_centers[row, :]))
         nearestneighbor = distances.argsort()[0]
         prediction = self.cluster_centers[nearestneighbor, :]
         return prediction
+
 
 class KMediods(object):
     """
@@ -172,30 +179,30 @@ class KMediods(object):
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             clusters (int): number of clusters to determine
-            max_iter (int): maximum number of iterations through Lloyd's algorithm
+            max_iter (int): maximum number of iterations through
+                Lloyd's algorithm
 
         Returns: an instance of self
         """
         self.samples = X
         n_samples, n_features = np.shape(X)
-        #Initialize centers to random data points
+        # Initialize centers to random data points
         self.cluster_centers = X[random.sample(range(n_samples), clusters), :]
-        #Initialize sample assignmnets to zero
+        # Initialize sample assignmnets to zero
         self.sample_assignments = np.zeros(n_samples)
         iteration = 1
         while iteration < max_iter:
-            print(iteration)
-            #Assign each point to nearest center
+            # Assign each point to nearest center
             for sample in range(n_samples):
                 distances = []
                 for row in range(clusters):
-                    difference = (self.cluster_centers[row, :] - self.samples[sample, :])
+                    difference = (self.cluster_centers[row, :] -
+                                  self.samples[sample, :])
                     current_distance = np.linalg.norm(difference)
                     distances.append(current_distance)
                 distances = np.array(distances)
                 nearest_center = distances.argsort()[0]
                 self.sample_assignments[sample] = nearest_center
-            print(self.sample_assignments)
             # Update cluster centers to mediods that minimize cost
             # Cost is sum of distances to mediod (within group)
             new_centers = np.zeros((clusters, n_features))
@@ -234,11 +241,13 @@ class KMediods(object):
             raise NameError('Fit model first')
         distances = np.array([])
         for row in range(np.shape(self.cluster_centers)[0]):
-            #append distance from x to cluster_centers row into distances vector
-            distances = np.append(distances, np.linalg.norm(x - self.cluster_centers[row, :]))
+            # Append distance from x to cluster_centers row into distances
+            distances = np.append(distances,
+                                  np.linalg.norm(x - self.cluster_centers[row, :]))
         nearestneighbor = distances.argsort()[0]
         prediction = self.cluster_centers[nearestneighbor, :]
         return prediction
+
 
 class LearningVectorQuantization(object):
     """
@@ -261,14 +270,17 @@ class LearningVectorQuantization(object):
 
     def fit(self, X, y, n_prototypes=5, epsilon=0.01, max_iter=1000):
         """
-        Randomly initializes clusers, uses LLyod's algorithm to find optimal clusters
+        Randomly initializes clusers, uses LLyod's algorithm to find
+            optimal clusters.
 
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.array): Target values of shape[n_samples]
             n_prototypes (int): number of prototypes per class
-            epsilon (float): learning rate.  How much to move each prototype per iteration
-            max_iter (int): maximum number of iterations through Lloyd's algorithm
+            epsilon (float): learning rate.  How much to move each
+                prototype per iteration
+            max_iter (int): maximum number of iterations through
+                Lloyd's algorithm
 
         Returns: an instance of self
         """
@@ -281,7 +293,9 @@ class LearningVectorQuantization(object):
             class_indices[val] = np.where(self.y == val)[0]
         # Initialize prototypes with random data points
         for val in class_vals:
-            random_class_indices = np.random.choice(class_indices[val], n_prototypes, replace=False)
+            random_class_indices = np.random.choice(class_indices[val],
+                                                    n_prototypes,
+                                                    replace=False)
             self.prototypes[val] = self.X[random_class_indices, :]
         """
         LVQ Algorithm:
@@ -304,18 +318,20 @@ class LearningVectorQuantization(object):
                     if distance < closest_distance:
                         closest_distance = distance
                         closest_prototype = [key, index, row]
-            print(closest_prototype)
             if closest_prototype[0] == self.y[current_index]:
-                self.prototypes[closest_prototype[0]][closest_prototype[1]] += epsilon * (current_data - closest_prototype[2])
+                self.prototypes[closest_prototype[0]][closest_prototype[1]] += \
+                    epsilon * (current_data - closest_prototype[2])
             else:
-                self.prototypes[closest_prototype[0]][closest_prototype[1]] -= epsilon * (current_data - closest_prototype[2])
+                self.prototypes[closest_prototype[0]][closest_prototype[1]] -= \
+                    epsilon * (current_data - closest_prototype[2])
             iterations += 1
         self.learned = True
         return self
 
     def predict(self, x):
         """
-        Note: currenly only works on single vector (one data instance) and not matrices
+        Note: currenly only works on single vector (one data instance)
+            and not matrices
 
         Args:
             x (np.array): sample data of shape[n_features]
@@ -339,6 +355,7 @@ class LearningVectorQuantization(object):
         prediction = closest_prototype
         return prediction
 
+
 class DANN(object):
     """
     Discriminant Adaptive Nearest Neighbors (DANN).
@@ -355,7 +372,8 @@ class DANN(object):
         Attributes:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.array): Target values of shape[n_samples]
-            neighborhood_size (int): number of nearest neighbors to consider when predicting
+            neighborhood_size (int): number of nearest neighbors to
+                consider when predicting
             learned (bool): Keeps track of if model has been fit
         """
         self.X = None
@@ -368,8 +386,10 @@ class DANN(object):
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.array): Target values of shape[n_samples]
-            neighborhood_size (int): number of nearest neighbors to consider when predicting
-            epsilon (float): learning rate.  How much to move each prototype per iteration
+            neighborhood_size (int): number of nearest neighbors to
+                consider when predicting
+            epsilon (float): learning rate.  How much to move each
+                prototype per iteration
 
         Returns: an instance of self
         """
@@ -386,7 +406,7 @@ class DANN(object):
             x1 (np.array): query point of shape[n_features]
             k (int): number of nearest neighbors to consider
 
-        Returns: 
+        Returns:
             Predicted class of sample
 
         Raises:
@@ -414,7 +434,8 @@ class DANN(object):
             class_covariance = np.cov(neighborhood_X[class_indices, :], rowvar=False)
             within_class_cov += class_covariance * class_frequencies[target_class]
             class_mean = neighborhood_X[class_indices, :].mean(axis=0)
-            between_class_cov += np.outer(class_mean - neighborhood_X_mean, class_mean - neighborhood_X_mean) * class_frequencies[target_class]
+            between_class_cov += np.outer(class_mean - neighborhood_X_mean,
+                                          class_mean - neighborhood_X_mean) * class_frequencies[target_class]
         # W* = W^-.5
         # B* = W*BW*
         W_star = np.linalg.pinv(np.nan_to_num(np.power(within_class_cov, 0.5)))
