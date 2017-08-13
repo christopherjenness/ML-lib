@@ -23,3 +23,12 @@ def test_SupportVectorMachine_polynomial_kernel():
     assert prediction == y[0]
     prediction = SVM.predict(X[-1])
     assert prediction == y[-1]
+
+
+def test_Perceptron():
+    X, y = data.categorical_2Dmatrix_data_big()
+    y = (y * 2) - 1
+    perceptron = svm.Perceptron()
+    perceptron.fit(X, y)
+    predictions = perceptron.predict(X)
+    assert (predictions == y).sum() > 7

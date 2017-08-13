@@ -6,7 +6,7 @@ import math
 import numpy as np
 import cvxopt
 
-#Useful Kernels
+# Useful Kernels
 def linear_kernel(**kwargs):
     def f(x1, x2):
         return np.inner(x1, x2)
@@ -94,7 +94,7 @@ class SupportVectorMachine(object):
 
         minimization = cvxopt.solvers.qp(P, q, G, h, A, b)
         alphas = np.ravel(minimization['x'])
-        #Extract support vectors
+        # Extract support vectors
         for index, alpha in enumerate(alphas):
             if alpha > 10**-6:
                 self.SValphas.append(alpha)
@@ -136,7 +136,7 @@ class kernels(object):
         return (np.dot(x1, x2) + c)**power
 
     @staticmethod
-    def rbf(x1, x2, gamma):
+    def rbf(x1, x2, gamma, *args, **kwargs):
         difference = x1 - x2
         return np.exp(-gamma * (np.dot(difference, difference.T)**2))
 
@@ -203,7 +203,7 @@ class Perceptron(object):
         y = np.asarray(y)
         X = np.asarray(X)
         X = np.column_stack((np.ones(np.shape(X)[0]), X))
-        #Check if y contains only 1 or -1 values
+        # Check if y contains only 1 or -1 values
         if False in np.in1d(y, [-1, 1]):
             raise NameError('y required to contain only 1 and -1')
         if isinstance(self.weights, bool):
@@ -216,8 +216,7 @@ class Perceptron(object):
             if iteration > self.max_iter:
                 if self.pocket:
                     self.weights = pocket_weights
-                else:
-                    self.weights = np.NaN
+                self.learned = True
                 return self
             classification = np.equal(np.sign(np.dot(X, np.transpose(self.weights))), y)
             #find misclassified point, and update classifier to correct misclassified point
