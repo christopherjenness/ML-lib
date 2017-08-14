@@ -1,5 +1,7 @@
 # Overview
 
+![Travis](https://travis-ci.org/christopherjenness/ML-lib.svg?branch=master)
+
 This is a machine learning library, made from scratch.  
 
 It uses:
