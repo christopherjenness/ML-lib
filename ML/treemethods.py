@@ -199,7 +199,7 @@ class RegressionTree(BaseTree):
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
         """
-        if self.weights == None:
+        if self.weights is None:
             weights = np.ones(len(values))
         else:
             weights = np.array(self.weights)
@@ -260,7 +260,7 @@ class ClassificationTree(BaseTree):
             min_feature (int): feature number to split data by
                 Essentially, the column number from the data which split is performed on
         """
-        if self.weights == None:
+        if self.weights is None:
             weights = np.ones(len(values))
         else:
             weights = np.array(self.weights)
@@ -554,8 +554,12 @@ class DiscreteAdaBoost(object):
         current_error = np.sum(current_misclassifications * weights) / np.sum(weights)
         current_alpha = np.log((1-current_error) / current_error)
         current_weights = weights * np.exp(current_alpha * current_misclassifications)
-        self.weights.append(current_weights)
-        self.alphas.append(current_alpha)
+        if current_error == 0:
+            self.weights.append(np.ones(len(current_weights)))
+            self.alphas.append(1)
+        else:
+            self.alphas.append(current_alpha)
+            self.weights.append(current_weights)
         self.stumps.append(stump)
         return self
 
@@ -672,8 +676,6 @@ class GradientBoostingRegression(object):
         Notes:
             Currently, only a single data instance can be predicted at a time.
         """
-        if not self.learned:
-            raise NameError('Fit model first')
         prediction = self.initial_hypothesis
         for tree in self.trees:
             gradient = -tree.predict(x)
