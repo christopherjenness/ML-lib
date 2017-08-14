@@ -6,11 +6,12 @@ import numpy as np
 import networkx as nx
 from scipy.stats import mode
 
+
 class BaseTree(object):
     """
-    Base Tree for classification/regression.  Written for single variable/value
-    binary split critereon.  Many methods needs to be rewritten if a more complex
-    split critereon is desired.
+    Base Tree for classification/regression.  Written for single
+    variable/value binary split critereon.  Many methods needs to be
+    rewritten if a more complex split critereon is desired.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -144,15 +145,20 @@ class BaseTree(object):
             if current_cutoff is None:
                 return []
             if next_node == min(self.graph.successors(current_node)):
-                data_indices = data_indices[self.X[data_indices, current_variable] < current_cutoff]
+                data_indices = data_indices[self.X[data_indices,
+                                                   current_variable]
+                                            < current_cutoff]
             else:
-                data_indices = data_indices[self.X[data_indices, current_variable] > current_cutoff]
+                data_indices = data_indices[self.X[data_indices,
+                                                   current_variable]
+                                            > current_cutoff]
             node_count += 1
         return data_indices
 
     def get_predecessors(self, node_number):
         """
-        Used by parition_data() to get predecessors of a given node (to walk down the tree)
+        Used by parition_data() to get predecessors of a given node
+        (to walk down the tree).
         """
         predecessors = []
         current_node = node_number
@@ -171,9 +177,11 @@ class BaseTree(object):
     @abc.abstractmethod
     def learn_split(self, inputs, values):
         """
-        Method to learn split given a data set (inputs) with target values (values)
+        Method to learn split given a data set (inputs) with
+        target values (values)
         """
         return
+
 
 class RegressionTree(BaseTree):
     """
@@ -197,7 +205,8 @@ class RegressionTree(BaseTree):
         Returns: (min_split, min_feature)
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
-                Essentially, the column number from the data which split is performed on
+                Essentially, the column number from the data which
+                split is performed on
         """
         if self.weights is None:
             weights = np.ones(len(values))
@@ -213,9 +222,15 @@ class RegressionTree(BaseTree):
             for split in feature_splits:
                 lower_class_average = np.mean(values[feature_vector < split])
                 upper_class_average = np.mean(values[feature_vector > split])
-                lower_class_errors = (values[feature_vector < split] - lower_class_average) * weights[feature_vector < split]
-                upper_class_errors = (values[feature_vector > split] - upper_class_average) * weights[feature_vector > split]
-                total_error = np.inner(lower_class_errors, lower_class_errors) + np.inner(upper_class_errors, upper_class_errors)
+                lower_class_errors = (values[feature_vector < split] -
+                                      lower_class_average) * \
+                    weights[feature_vector < split]
+                upper_class_errors = (values[feature_vector > split] -
+                                      upper_class_average) * \
+                    weights[feature_vector > split]
+                total_error = np.inner(lower_class_errors,
+                                       lower_class_errors) + \
+                    np.inner(upper_class_errors, upper_class_errors)
                 if total_error < min_error:
                     min_error = total_error
                     min_feature = feature
@@ -235,6 +250,7 @@ class RegressionTree(BaseTree):
                 node_indices = self.partition_data(i)
                 classval = self.y[node_indices].mean()
                 self.graph.node[i]['classval'] = classval
+
 
 class ClassificationTree(BaseTree):
     """
@@ -258,7 +274,8 @@ class ClassificationTree(BaseTree):
         Returns:  (min_split, min_feature)
             min_split (float): feature value at which to split
             min_feature (int): feature number to split data by
-                Essentially, the column number from the data which split is performed on
+                Essentially, the column number from the data which
+                split is performed on
         """
         if self.weights is None:
             weights = np.ones(len(values))
@@ -274,8 +291,14 @@ class ClassificationTree(BaseTree):
             for split in feature_splits:
                 lower_class_mode = mode(values[feature_vector < split]).mode[0]
                 upper_class_mode = mode(values[feature_vector > split]).mode[0]
-                lower_class_errors = np.sum((values[feature_vector < split] != lower_class_mode).astype(int) * weights[feature_vector < split])
-                upper_class_errors = np.sum((values[feature_vector > split] != upper_class_mode).astype(int) * weights[feature_vector > split])
+                lower_class_errors = np.sum((values[feature_vector
+                                                    < split] !=
+                                             lower_class_mode).astype(int) *
+                                            weights[feature_vector < split])
+                upper_class_errors = np.sum((values[feature_vector
+                                                    > split] !=
+                                             upper_class_mode).astype(int) *
+                                            weights[feature_vector > split])
                 total_error = upper_class_errors + lower_class_errors
                 if total_error < min_error:
                     min_error = total_error
@@ -297,6 +320,7 @@ class ClassificationTree(BaseTree):
                 classval = mode(self.y[node_indices]).mode[0]
                 self.graph.node[i]['classval'] = classval
 
+
 class PrimRegression(BaseTree):
     """
     PRIM: Patient Rule Induction Method
@@ -304,8 +328,9 @@ class PrimRegression(BaseTree):
     More "patient" than CART algorithm.
 
     NOTE:
-        Since decision is a "box", many methods in BaseTree class are overwritten
-        In the futute, BaseTree can be reworked to accomodate more flexible decisions
+        Since decision is a "box", many methods in BaseTree class
+        are overwritten. In the futute, BaseTree can be reworked
+        to accomodate more flexible decisions
     """
     def __init__(self):
         BaseTree.__init__(self)
@@ -339,7 +364,7 @@ class PrimRegression(BaseTree):
                 Target values which node split will be based off of
 
         Returns:
-            dict: Dictionary of cutoffs to use 
+            dict: Dictionary of cutoffs to use
             {variable: [min_cutoff, max_cutoff]}
             Example: {3, [-12.5, 10]} means samples boxed between 12.5 and 10
                 on variable 3 are in the box.
@@ -358,10 +383,14 @@ class PrimRegression(BaseTree):
             feature_vector = inputs[:, feature]
             sorted_vector = np.unique(np.sort(feature_vector))
             feature_splits = (sorted_vector[1:] + sorted_vector[:-1]) / 2
-            lower_split, upper_split = [int(len(feature_splits) * 0.1), int(len(feature_splits) * 0.9)]
-            boxed_data_upper = values[inputs[:, feature] > feature_splits[lower_split]]
-            boxed_data_lower = values[inputs[:, feature] < feature_splits[upper_split]]
-            max_split = max(np.mean(boxed_data_lower), np.mean(boxed_data_upper))
+            lower_split, upper_split = [int(len(feature_splits) * 0.1),
+                                        int(len(feature_splits) * 0.9)]
+            boxed_data_upper = values[inputs[:, feature]
+                                      > feature_splits[lower_split]]
+            boxed_data_lower = values[inputs[:, feature]
+                                      < feature_splits[upper_split]]
+            max_split = max(np.mean(boxed_data_lower),
+                            np.mean(boxed_data_upper))
             if max_split > mean_response:
                 mean_response = max_split
                 if np.mean(boxed_data_upper) > np.mean(boxed_data_lower):
@@ -402,7 +431,8 @@ class PrimRegression(BaseTree):
             for key in self.graph.node[current_node]['cutoffs']:
                 current_variable = key
                 current_cutoff = self.graph.node[current_node]['cutoffs'][key]
-                if x[current_variable] < current_cutoff[0] or x[current_variable] > current_cutoff[1]:
+                if x[current_variable] < current_cutoff[0] or \
+                   x[current_variable] > current_cutoff[1]:
                     within_box = False
             if within_box:
                 current_node = children[0]
@@ -477,15 +507,21 @@ class PrimRegression(BaseTree):
             current_variable = key
             current_cutoff_min = cutoff_dict[key][0]
             current_cutoff_max = cutoff_dict[key][1]
-            boxed_data = data_indices[(inputs[data_indices, current_variable] < current_cutoff_max) & (inputs[data_indices, current_variable] > current_cutoff_min)]
+            boxed_data = data_indices[(inputs[data_indices,
+                                              current_variable] <
+                                       current_cutoff_max) &
+                                      (inputs[data_indices,
+                                              current_variable] >
+                                       current_cutoff_min)]
             data_indices = boxed_data
         return data_indices
+
 
 class DiscreteAdaBoost(object):
     """
     Ada Boost classifier.
-    This implimentation produces a series of decisions stumps (decision trees with
-    two terminal nodes).
+    This implimentation produces a series of decisions stumps
+    (decision trees with two terminal nodes).
     """
     def __init__(self):
         """
@@ -494,11 +530,12 @@ class DiscreteAdaBoost(object):
             stumps (list): list to hold stumps generated by moldel
             X (np.ndarray): Training data of shape[n_samples, n_features]
             y (np.ndarray): Target values of shape[n_samples, 1]
-            weights (list): list of weights.  Each weight[i] is a list of weights
-                containing sample weights of shape[n_samples, 1], corresponding to
+            weights (list): list of weights.  Each weight[i] is a
+                list of weights containing sample weights of
+                shape[n_samples, 1], corresponding to
                 stump in stumps[i]
-            alphas (list): List of alphas, which determine how much to weight each
-                decision stump in final model.
+            alphas (list): List of alphas, which determine how much
+                to weight each decision stump in final model.
             learned (bool): Keeps track of if model has been fit
         """
         self.stump_count = 0
@@ -542,7 +579,8 @@ class DiscreteAdaBoost(object):
             calculates weights of samples for the generated stump
 
         Returns: an instance of self.
-            self.stumps and self.weights are appended with the newest stump/weights
+            self.stumps and self.weights are appended with the
+            newest stump/weights
         """
         stump = ClassificationTree()
         stump.fit(self.X, self.y, height=1, weights=weights)
@@ -551,9 +589,11 @@ class DiscreteAdaBoost(object):
             prediction = stump.predict(row)
             predictions.append(prediction)
         current_misclassifications = (predictions != self.y).astype(int)
-        current_error = np.sum(current_misclassifications * weights) / np.sum(weights)
+        current_error = np.sum(current_misclassifications * weights) / \
+            np.sum(weights)
         current_alpha = np.log((1-current_error) / current_error)
-        current_weights = weights * np.exp(current_alpha * current_misclassifications)
+        current_weights = weights * np.exp(current_alpha *
+                                           current_misclassifications)
         if current_error == 0:
             self.weights.append(np.ones(len(current_weights)))
             self.alphas.append(1)
@@ -587,13 +627,14 @@ class DiscreteAdaBoost(object):
         prediction = np.sign(np.sum(predictions * self.alphas))
         return prediction
 
+
 class GradientBoostingRegression(object):
     """
     Gradient boosting regression.
     A series of small trees (weak classifiers) combined to produce a
     hypothesis.  Each subsequent classifier fits a differential loss function
-    of the previous model.  Currently, only MSE is supported, but the differential
-    loss function can be a variety of functions.
+    of the previous model.  Currently, only MSE is supported,
+    but the differential loss function can be a variety of functions.
     """
     def __init__(self):
         """
@@ -648,8 +689,8 @@ class GradientBoostingRegression(object):
 
     def add_tree(self, residuals):
         """
-        residuals (np.array): array of residuals of shape[n_samples,] calculated
-            from the current model
+        residuals (np.array): array of residuals of shape[n_samples,]
+            calculated from the current model
 
         Notes:
             Method adds a single decision tree to self.trees by fitting
@@ -682,12 +723,13 @@ class GradientBoostingRegression(object):
             prediction += self.learning_rate * gradient
         return prediction
 
+
 class RandomForestRegression(object):
     """
     Random Forests are an ensemble method which averages a set of
     de-correlated trees.
-    In this implimentation, a bootstrapped sample is used to generage each tree,
-    and each tree uses a subset of total features.
+    In this implimentation, a bootstrapped sample is used to generage
+    each tree, and each tree uses a subset of total features.
     """
     def __init__(self):
         """
@@ -717,7 +759,8 @@ class RandomForestRegression(object):
             y (np.array): Target values of shape[n_samples]
             n_trees (int): number of trees in regressor
             tree_depth (int): height of each tree in regressor
-            bootstrap (bool): Whether a bootstrap sample is used for tree fitting
+            bootstrap (bool): Whether a bootstrap sample is used for
+                tree fitting
 
         Returns: an instance of self
         """
@@ -727,14 +770,19 @@ class RandomForestRegression(object):
         features_per_tree = int(np.sqrt(n_features))
         self.tree_depth = tree_depth
         while self.tree_count < n_trees:
-            current_variables = np.random.choice(np.arange(n_features), features_per_tree, replace=False)
+            current_variables = np.random.choice(np.arange(n_features),
+                                                 features_per_tree,
+                                                 replace=False)
             self.features.append(current_variables)
             if bootstrap:
-                current_indices = np.random.choice(np.arange(n_samples), n_samples, replace=True)
+                current_indices = np.random.choice(np.arange(n_samples),
+                                                   n_samples,
+                                                   replace=True)
             else:
                 current_indices = np.arange(n_samples)
             current_samples = self.X[current_indices]
-            self.add_tree(current_samples[:, current_variables], self.y[current_indices])
+            self.add_tree(current_samples[:, current_variables],
+                          self.y[current_indices])
             self.tree_count += 1
         self.learned = True
         return self
