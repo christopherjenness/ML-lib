@@ -49,11 +49,12 @@ It contains the following functionality:
 Examples are shown in two dimensions for visualisation purposes, however, all methods can handle high dimensional data.
 ## Regression
 
-* Linear and logistic regression with regularization.  Closed form, gradient descent, SGD solvers.
+* Linear and logistic regression with regularization.  Closed form, gradient descent, and SGD solvers.
+
+![Imgur](http://i.imgur.com/dtihcxa.png)
 
 ![Imgur](http://i.imgur.com/MDecAmb.png)
 
-![Imgur](http://i.imgur.com/dtihcxa.png)
 
 ## Support Vector Machines
 
