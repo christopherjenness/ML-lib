@@ -24,7 +24,7 @@ It contains the following functionality:
     * AdaBoost
     * Gradient Boost
     * Random Forests
-  * Kernel Methods
+  * Kernel Smoothing Methods
     * Nadaraya average
     * Local linear regression
     * Local logistic regression
