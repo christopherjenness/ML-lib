@@ -15,7 +15,9 @@ It contains the following functionality:
   * Linear and Logistic regression
     * Regularization
     * Solvers
-      * Gradient Descent
+      * Gradient descent
+      * Steepest descent
+      * Newton's method
       * SGD
       * Backtracking line search
       * Closed form solutions
