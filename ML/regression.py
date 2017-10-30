@@ -35,6 +35,7 @@ class BaseRegression:
     def weights(self, value):
         self._weights = value
 
+
 class LinearRegression(BaseRegression):
     """Class for implimenting Linear Regression"""
 
@@ -137,10 +138,12 @@ class LogisticRegression(BaseRegression):
         gradient = np.dot(np.transpose(X), hypothesis) / np.size(y)
         return gradient
 
-    def predict(self, X):
+    def predict(self, X, probability=False):
         """
         Args:
             X (np.ndarray): Training data of shape[n_samples, n_features]
+            probability (bool): If True, return probabilities
+                If False, return class predictions.
 
         Returns:
             np.ndarray: shape[n_samples, 1], the predicted values
@@ -155,6 +158,8 @@ class LogisticRegression(BaseRegression):
         X = np.column_stack((np.ones(np.shape(X)[0]), X))
         prediction = self.logistic_function(np.dot(X,
                                                    np.transpose(self.weights)))
+        if probability:
+            return prediction
         return np.round(prediction)
 
     def fit(self, X, y, reg_parameter=0):
