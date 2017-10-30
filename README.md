@@ -13,8 +13,12 @@ It uses:
 It contains the following functionality:
 * **Supervised Learning:**
   * Linear and Logistic regression
-    * Closed form, Gradient descent, and SGD solvers
     * Regularization
+    * Solvers
+      * Gradient Descent
+      * SGD
+      * Backtracking line search
+      * Closed form solutions
   * Support Vector Machines
     * Soft and hard margins
     * Kernels
