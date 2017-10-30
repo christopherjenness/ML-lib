@@ -7,7 +7,7 @@ import itertools
 def best_subset(X, y, model, parameters, error_measure,
                 direction='forward'):
     """
-    Function for selecting a subset of parametrs from X, which
+    Function for selecting a subset of parameters from X, which
     minimize the in sample error measure.  Algorithm acts in a
     greedy manner, either adding one parameter at a time (forward),
     or removing one at a time (backward).
@@ -21,7 +21,7 @@ def best_subset(X, y, model, parameters, error_measure,
         error_measure (function): function(y, predictions) for
             measuring the model fit. For example, MSE error from error module
         parameters (int): number of parameters in subset to return
-        direction: {'forward', 'backward', 'combinatorial'}
+        direction (str): {'forward', 'backward', 'combinatorial'}
             forward adds one parameter at a time in a greedy manner
             backwards removes one parameter at a time in a greedy manner
             combinatorial tries all combinations of parameters
