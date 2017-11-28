@@ -13,8 +13,8 @@ import numpy as np
 class DiscriminentAnalysis():
     """
     Class for implimenting Regularized Discriminent Analysis
-    LDA is performed when alpha == 1
-    QDA is performed when alpha == 2
+    LDA is performed when alpha=0
+    QDA is performed when alpha=1
     """
     def __init__(self, alpha=1.0):
         """
