@@ -133,9 +133,9 @@ class KernelMethods(object):
                       self.logistic_function(np.dot(self.X[row, :],
                                                     np.transpose(theta)))))
         D = np.diag(D)
-        hessian = np.matmul(np.matmul(self.X.T, D),
-                            self.X) - \
-                            np.identity(np.shape(self.X)[1]) * reg_param
+        hessian = (np.matmul(np.matmul(self.X.T, D),
+                             self.X) -
+                   np.identity(np.shape(self.X)[1]) * reg_param)
         return hessian
 
     def locallogisticregression(self, x, kernel, gamma, reg_param=0,
@@ -197,8 +197,8 @@ class KernelMethods(object):
         estimate = 0
         for row in range(np.shape(samples)[0]):
             x_i = np.array(x) - samples[row, :]
-            gaussiankernel = (1/(2*np.pi)**0.5 * gamma**2)**N * \
-                             np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2))
+            gaussiankernel = ((1/(2*np.pi)**0.5 * gamma**2)**N *
+                              np.exp(-np.linalg.norm(x_i)**2 / (2 * gamma**2)))
             estimate += gaussiankernel
         estimate /= N
         return estimate
