@@ -7,6 +7,7 @@ import abc
 import numpy as np
 from scipy.stats import norm
 
+
 class NaiveBayes():
     """
     Naive Bayes Classifier
@@ -57,6 +58,7 @@ class NaiveBayes():
             ValueError if model has not been fit
         """
         return self
+
 
 class GaussianNaiveBayes(NaiveBayes):
     """
@@ -132,6 +134,7 @@ class GaussianNaiveBayes(NaiveBayes):
 
         return class_probabilities
 
+
 class BernoulliNaiveBayes(NaiveBayes):
     """
     Bernoulli Naive Bayes Classifier
@@ -201,7 +204,7 @@ class BernoulliNaiveBayes(NaiveBayes):
         if not probabilities:
             return classification_class
 
-        #Normalize probabilities
+        # Normalize probabilities
         for class_name in self.class_names:
             class_probabilities[class_name] /= normalizing_constant
 
