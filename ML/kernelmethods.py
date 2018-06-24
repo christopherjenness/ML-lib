@@ -126,7 +126,7 @@ class KernelMethods(object):
     def locallogisticHessian(self, theta, weights, reg_param):
         """
         Hessian for regulatrized local logistic regression L2 loss
-        
+
         Args:
             theta (np.array): Current lwlr parameters of shape
                 [1, n_features]
@@ -134,22 +134,25 @@ class KernelMethods(object):
                 [n_samples, 1]
             reg_param (float): L2 regularization weight. If 0, no
                 no regulatrization is used.
-        
+
         Returns:
             Hessian (np.ndarray): Hessian of shape [n_features, n_features]
         """
+        # Add bias to X
+        X = np.insert(self.X, 0, 1, axis=1)
+        
         D = []
-        for row in range(np.shape(self.X)[0]):
+        for row in range(np.shape(X)[0]):
             D.append(weights[row] *
-                     self.logistic_function(np.dot(self.X[row, :],
+                     self.logistic_function(np.dot(X[row, :],
                                                    np.transpose(theta))) *
                      (1 -
-                      self.logistic_function(np.dot(self.X[row, :],
+                      self.logistic_function(np.dot(X[row, :],
                                                     np.transpose(theta)))))
         D = np.diag(D)
-        hessian = (np.matmul(np.matmul(self.X.T, D),
-                             self.X) -
-                   np.identity(np.shape(self.X)[1]) * reg_param)
+        hessian = (np.matmul(np.matmul(X.T, D),
+                             X) -
+                   np.identity(np.shape(X)[1]) * reg_param)
         return hessian
 
     def locallogisticregression(self, x, kernel, gamma, reg_param=0,
@@ -171,26 +174,29 @@ class KernelMethods(object):
             iterations (int): number of gradient descent steps to take
             alpha (float): depth of each gradient descent step to take
         """
-        # Set training set weights for query point
-        W = [kernel(self.X[row], x, gamma)
-             for row in range(np.shape(self.X)[0])]
+        # Add bias to X
+        X = np.insert(self.X, 0, 1, axis=1)
+        x = np.insert(x, 0, 1)
+
+        # Set training set weights for query points
+        W = [kernel(X[row], x, gamma)
+             for row in range(np.shape(X)[0])]
 
         # Initialize theta
-        theta = np.zeros(np.shape(self.X)[1]) + 0.0001
+        theta = np.zeros(np.shape(X)[1]) + 0.0001
 
         # Newtons Method
         iteration = 0
         while iteration < iterations:
             hessian = self.locallogisticHessian(theta, W, reg_param)
             z = [W[row] * (self.y[row] -
-                 self.logistic_function(np.dot(self.X[row, :],
+                 self.logistic_function(np.dot(X[row, :],
                                                theta)))
-                 for row in range(np.shape(self.X)[0])]
-            gradient = np.matmul(self.X.T, z) - (reg_param * theta)
+                 for row in range(np.shape(X)[0])]
+            gradient = np.matmul(X.T, z) - (reg_param * theta)
             step_direction = -np.dot(np.linalg.pinv(hessian), gradient)
             theta = theta + alpha * step_direction
             iteration += 1
-        print('****', theta, x, np.dot(x, theta))
         prediction = self.logistic_function(np.dot(x, theta))
         return prediction
 
