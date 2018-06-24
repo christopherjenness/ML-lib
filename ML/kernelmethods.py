@@ -171,20 +171,21 @@ class KernelMethods(object):
             iterations (int): number of gradient descent steps to take
             alpha (float): depth of each gradient descent step to take
         """
-        W = []
-        for row in range(np.shape(self.X)[0]):
-            W.append(kernel(self.X[row], x, gamma))
-        # Newtons Method
+        # Set training set weights for query point
+        W = [kernel(self.X[row], x, gamma)
+             for row in range(np.shape(self.X)[0])]
+
+        # Initialize theta
         theta = np.zeros(np.shape(self.X)[1]) + 0.0001
+
+        # Newtons Method
         iteration = 0
         while iteration < iterations:
             hessian = self.locallogisticHessian(theta, W, reg_param)
-            z = []
-            for row in range(np.shape(self.X)[0]):
-                z.append(W[row] *
-                         self.y[row] -
-                         self.logistic_function(np.dot(self.X[row, :],
-                                                       theta)))
+            z = [W[row] * (self.y[row] -
+                 self.logistic_function(np.dot(self.X[row, :],
+                                               theta)))
+                 for row in range(np.shape(self.X)[0])]
             gradient = np.matmul(self.X.T, z) - (reg_param * theta)
             step_direction = -np.dot(np.linalg.pinv(hessian), gradient)
             theta = theta + alpha * step_direction
