@@ -124,6 +124,20 @@ class KernelMethods(object):
         return 1 / (1 + np.exp(-logistic_input))
 
     def locallogisticHessian(self, theta, weights, reg_param):
+        """
+        Hessian for regulatrized local logistic regression L2 loss
+        
+        Args:
+            theta (np.array): Current lwlr parameters of shape
+                [1, n_features]
+            weights (np.array): training set weights of shape
+                [n_samples, 1]
+            reg_param (float): L2 regularization weight. If 0, no
+                no regulatrization is used.
+        
+        Returns:
+            Hessian (np.ndarray): Hessian of shape [n_features, n_features]
+        """
         D = []
         for row in range(np.shape(self.X)[0]):
             D.append(weights[row] *
